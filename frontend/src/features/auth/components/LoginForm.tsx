@@ -15,6 +15,15 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
+/**
+ * Render a login form with email and password inputs, client-side validation, and authentication handling.
+ *
+ * The component manages password visibility and input focus, validates fields with the provided schema,
+ * submits credentials via the login mutation, persists the returned token on success, and navigates to
+ * the dashboard. Displays field errors and a top-level error alert when the mutation fails.
+ *
+ * @returns The JSX element for the login form that handles validation, submission, and post-login navigation.
+ */
 export function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -84,12 +93,11 @@ export function LoginForm() {
                 <InputField
                     id="password"
                     label="Password"
-                    // labelRightElement=
-                    // {
-                    //     <a href="#" className="text-[11px] font-semibold text-brand-accent hover:opacity-80 transition-opacity">
-                    //         Forgot?
-                    //     </a>
-                    // }
+                    labelRightElement={
+                        <a href="#" className="text-[11px] font-semibold text-brand-accent hover:opacity-80 transition-opacity">
+                            Forgot?
+                        </a>
+                    } 
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     icon={<Lock />}
@@ -161,8 +169,8 @@ export function LoginForm() {
                     </div> */}
 
                     <p className="text-center text-[12px] text-text-muted mt-7">
-                        No account?
-                        <Link to="/sign-up" className="font-bold text-text-main hover:underline underline-offset-2">
+                        No account?{" "}
+                        <Link to="/register" className="font-bold text-text-main hover:underline underline-offset-2">
                             Sign up
                         </Link>
                     </p>

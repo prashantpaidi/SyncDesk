@@ -16,6 +16,26 @@ type InputFieldProps = {
     labelRightElement?: React.ReactNode;
 };
 
+/**
+ * Renders a labeled text input with a leading icon, optional right-side element, and inline validation message.
+ *
+ * The input integrates with react-hook-form via `registration`, updates visual focus state via `isFocused`, and
+ * forwards focus/blur events to the provided callbacks.
+ *
+ * @param id - The input element id and the label's htmlFor target.
+ * @param label - Text displayed as the input label.
+ * @param type - HTML input type (defaults to "text").
+ * @param icon - Leading icon React node displayed inside the input.
+ * @param registration - Props returned by react-hook-form to spread onto the input (e.g., `onChange`, `value`, `ref`, `onBlur`).
+ * @param error - Optional field error object; if present, `error.message` is displayed beneath the input.
+ * @param placeholder - Optional placeholder text for the input.
+ * @param isFocused - When true, the input renders focused visual styling.
+ * @param onFocus - Callback invoked when the input receives focus.
+ * @param onBlur - Callback invoked when the input loses focus; executed after `registration.onBlur`.
+ * @param rightElement - Optional React node rendered inside the input at the right (e.g., a visibility toggle).
+ * @param labelRightElement - Optional React node displayed to the right of the label on the same row.
+ * @returns The JSX element for the composed input field.
+ */
 export function InputField({
     id,
     label,

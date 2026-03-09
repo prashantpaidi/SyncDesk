@@ -23,6 +23,12 @@ const registerSchema = z.object({
 // Since the schema output contains confirmPassword but the API might not need it
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
+/**
+ * Renders a registration form for creating a new user account, including client-side validation,
+ * password visibility toggles, inline error display, and submission handling.
+ *
+ * @returns The form's React element; submitting successfully stores the received auth token and navigates to "/dashboard".
+ */
 export function RegisterForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);

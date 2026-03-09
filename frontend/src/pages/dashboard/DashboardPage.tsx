@@ -1,6 +1,13 @@
 import { useAuth } from "../../features/auth/context/AuthContext";
 import { LogOut } from "lucide-react";
 
+/**
+ * Renders the protected Dashboard page, showing a heading, descriptive text, and a Logout button.
+ *
+ * The Logout button invokes the authentication context's logout handler when clicked.
+ *
+ * @returns The dashboard page's JSX element.
+ */
 export default function DashboardPage() {
     const { logout } = useAuth();
 
