@@ -97,7 +97,7 @@ export function LoginForm() {
                         <a href="#" className="text-[11px] font-semibold text-brand-accent hover:opacity-80 transition-opacity">
                             Forgot?
                         </a>
-                    }
+                    } 
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     icon={<Lock />}
