@@ -84,11 +84,12 @@ export function LoginForm() {
                 <InputField
                     id="password"
                     label="Password"
-                    labelRightElement={
-                        <a href="#" className="text-[11px] font-semibold text-brand-accent hover:opacity-80 transition-opacity">
-                            Forgot?
-                        </a>
-                    }
+                    // labelRightElement=
+                    // {
+                    //     <a href="#" className="text-[11px] font-semibold text-brand-accent hover:opacity-80 transition-opacity">
+                    //         Forgot?
+                    //     </a>
+                    // }
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     icon={<Lock />}
@@ -160,8 +161,8 @@ export function LoginForm() {
                     </div> */}
 
                     <p className="text-center text-[12px] text-text-muted mt-7">
-                        No account?{" "}
-                        <Link to="/register" className="font-bold text-text-main hover:underline underline-offset-2">
+                        No account?
+                        <Link to="/sign-up" className="font-bold text-text-main hover:underline underline-offset-2">
                             Sign up
                         </Link>
                     </p>

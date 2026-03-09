@@ -9,6 +9,11 @@ export type RegisterCredentials = {
 };
 
 const registerApi = async (credentials: RegisterCredentials) => {
+    if (credentials.confirmPassword !== undefined &&
+        credentials.password !== credentials.confirmPassword) {
+        throw new Error('Passwords do not match');
+    }
+
     // Default role to "CUSTOMER" if not provided
     const payload = {
         name: credentials.name,
