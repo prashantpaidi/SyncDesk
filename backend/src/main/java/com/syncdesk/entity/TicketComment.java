@@ -34,6 +34,10 @@ public class TicketComment {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isVisibleToUser = true;
+
     @PrePersist
     void onCreate() {
         createdAt = LocalDateTime.now();
