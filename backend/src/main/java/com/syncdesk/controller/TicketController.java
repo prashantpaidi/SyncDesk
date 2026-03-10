@@ -64,7 +64,7 @@ public class TicketController {
             @PathVariable Long id,
             @Valid @RequestBody CommentRequest request,
             @AuthenticationPrincipal User currentUser) {
-        com.syncdesk.dto.ticket.response.CommentResponse response = ticketService.addComment(id, request, currentUser);
+        CommentResponse response = ticketService.addComment(id, request, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

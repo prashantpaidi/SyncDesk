@@ -11,6 +11,7 @@ import com.syncdesk.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.syncdesk.repository.TicketCommentRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +22,7 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
-    private final TicketCommentRepository ticketCommentRepository;
+    private final TicketCommentRepository TicketCommentRepository;
 
     @Transactional
     public TicketResponse createTicket(CreateTicketRequest request, User currentUser) {
@@ -83,19 +84,19 @@ public class TicketService {
     }
 
     @Transactional
-    public com.syncdesk.dto.ticket.response.CommentResponse addComment(Long ticketId,
-            com.syncdesk.dto.ticket.request.CommentRequest request, User currentUser) {
+    public CommentResponse addComment(Long ticketId,
+            CommentRequest request, User currentUser) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
 
-        com.syncdesk.entity.TicketComment comment = com.syncdesk.entity.TicketComment.builder()
+        TicketComment comment = TicketComment.builder()
                 .ticket(ticket)
                 .author(currentUser)
                 .content(request.getContent())
                 .isVisibleToUser(request.isVisibleToUser())
                 .build();
 
-        com.syncdesk.entity.TicketComment savedComment = ticketCommentRepository.save(comment);
+        TicketComment savedComment = ticketCommentRepository.save(comment);
         return mapToCommentResponse(savedComment);
     }
 
@@ -107,7 +108,7 @@ public class TicketService {
         }
 
         List<TicketComment> comments;
-        if (currentUser.getRole() == com.syncdesk.enums.Role.CUSTOMER) {
+        if (currentUser.getRole() == Role.CUSTOMER) {
             comments = ticketCommentRepository.findByTicketIdAndIsVisibleToUserTrueOrderByCreatedAtDesc(ticketId);
         } else {
             comments = ticketCommentRepository.findByTicketIdOrderByCreatedAtDesc(ticketId);
