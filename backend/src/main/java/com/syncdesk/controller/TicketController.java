@@ -58,4 +58,20 @@ public class TicketController {
         ticketService.deleteTicket(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<CommentResponse> addComment(
+            @PathVariable Long id,
+            @Valid @RequestBody CommentRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        com.syncdesk.dto.ticket.response.CommentResponse response = ticketService.addComment(id, request, currentUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsForTicket(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(ticketService.getCommentsForTicket(id, currentUser));
+    }
 }

@@ -21,6 +21,7 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
+    private final TicketCommentRepository ticketCommentRepository;
 
     @Transactional
     public TicketResponse createTicket(CreateTicketRequest request, User currentUser) {
@@ -79,6 +80,54 @@ public class TicketService {
             throw new ResourceNotFoundException("Ticket not found with id: " + id);
         }
         ticketRepository.deleteById(id);
+    }
+
+    @Transactional
+    public com.syncdesk.dto.ticket.response.CommentResponse addComment(Long ticketId,
+            com.syncdesk.dto.ticket.request.CommentRequest request, User currentUser) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
+
+        com.syncdesk.entity.TicketComment comment = com.syncdesk.entity.TicketComment.builder()
+                .ticket(ticket)
+                .author(currentUser)
+                .content(request.getContent())
+                .isVisibleToUser(request.isVisibleToUser())
+                .build();
+
+        com.syncdesk.entity.TicketComment savedComment = ticketCommentRepository.save(comment);
+        return mapToCommentResponse(savedComment);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getCommentsForTicket(Long ticketId,
+            User currentUser) {
+        if (!ticketRepository.existsById(ticketId)) {
+            throw new ResourceNotFoundException("Ticket not found with id: " + ticketId);
+        }
+
+        List<TicketComment> comments;
+        if (currentUser.getRole() == com.syncdesk.enums.Role.CUSTOMER) {
+            comments = ticketCommentRepository.findByTicketIdAndIsVisibleToUserTrueOrderByCreatedAtDesc(ticketId);
+        } else {
+            comments = ticketCommentRepository.findByTicketIdOrderByCreatedAtDesc(ticketId);
+        }
+
+        return comments.stream()
+                .map(this::mapToCommentResponse)
+                .collect(Collectors.toList());
+    }
+
+    private CommentResponse mapToCommentResponse(
+            TicketComment comment) {
+        return CommentResponse.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .authorId(comment.getAuthor() != null ? comment.getAuthor().getId() : null)
+                .authorName(comment.getAuthor() != null ? comment.getAuthor().getName() : null)
+                .isVisibleToUser(comment.isVisibleToUser())
+                .createdAt(comment.getCreatedAt())
+                .build();
     }
 
     private TicketResponse mapToResponse(Ticket ticket) {
