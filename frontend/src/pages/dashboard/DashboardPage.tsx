@@ -1,23 +1,66 @@
 import { useAuth } from "../../features/auth/context/AuthContext";
-import { LogOut } from "lucide-react";
+import { LogOut, Plus, Zap } from "lucide-react";
+import { Link } from "react-router";
+import { CustomerDashboard } from "./CustomerDashboard";
+import { AgentDashboard } from "./AgentDashboard";
+import { AdminDashboard } from "./AdminDashboard";
+import { ManagerDashboard } from "./ManagerDashboard";
 
 export default function DashboardPage() {
-    const { logout } = useAuth();
+    const { logout, role } = useAuth();
 
     return (
-        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-            <div className="bg-surface-main p-8 rounded-card max-w-md w-full shadow-card text-center">
-                <h1 className="text-3xl font-bold text-text-main mb-4">Dashboard</h1>
-                <p className="text-text-muted mb-8">You have successfully authenticated and accessed the protected dashboard.</p>
+        <div className="min-h-screen bg-surface-input font-sans antialiased flex flex-col">
+            {/* ── Navbar ── */}
+            <header className="bg-surface-card border-b border-border sticky top-0 z-30 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        {/* Logo */}
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-brand-dark rounded-xl flex items-center justify-center shadow-logo relative overflow-hidden">
+                                <Zap className="w-4 h-4 text-white" fill="currentColor" />
+                            </div>
+                            <span className="text-xl font-bold tracking-tight text-text-main">
+                                SyncDesk
+                            </span>
+                        </div>
 
-                <button
-                    onClick={logout}
-                    className="flex items-center justify-center gap-2 mx-auto px-6 py-3 bg-red-500/10 text-red-500 rounded-pill hover:bg-red-500/20 transition-colors font-medium"
-                >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                </button>
-            </div>
+                        {/* Actions */}
+                        <div className="flex items-center gap-4">
+                            {role !== "ADMIN" && (
+                                <Link
+                                    to="/tickets/new"
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-brand-dark text-white text-sm font-semibold rounded-pill hover:opacity-90 transition-all shadow-button hover:-translate-y-0.5 active:translate-y-0"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Create Incident
+                                </Link>
+                            )}
+
+                            <div className="w-px h-6 bg-border mx-1 hidden sm:block"></div>
+
+                            <button
+                                onClick={logout}
+                                className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-text-muted hover:text-text-main hover:bg-surface-input rounded-xl transition-colors"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                <span className="hidden sm:inline">Logout</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            {/* ── Main Content ── */}
+            {role === "ADMIN" ? (
+                <AdminDashboard />
+            ) : role === "MANAGER" ? (
+                <ManagerDashboard />
+            ) : role === "AGENT" ? (
+                <AgentDashboard />
+            ) : (
+                <CustomerDashboard />
+            )}
         </div>
     );
 }

@@ -9,6 +9,10 @@ import com.syncdesk.exception.ResourceNotFoundException;
 import com.syncdesk.repository.TicketRepository;
 import com.syncdesk.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import com.syncdesk.entity.TicketComment;
+import com.syncdesk.enums.Role;
+import com.syncdesk.dto.ticket.request.CommentRequest;
+import com.syncdesk.dto.ticket.response.CommentResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.syncdesk.repository.TicketCommentRepository;
@@ -22,7 +26,7 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
-    private final TicketCommentRepository TicketCommentRepository;
+    private final TicketCommentRepository ticketCommentRepository;
 
     @Transactional
     public TicketResponse createTicket(CreateTicketRequest request, User currentUser) {
@@ -39,7 +43,12 @@ public class TicketService {
     }
 
     @Transactional(readOnly = true)
-    public List<TicketResponse> getAllTickets() {
+    public List<TicketResponse> getAllTickets(User currentUser) {
+        if (currentUser.getRole() == com.syncdesk.enums.Role.CUSTOMER) {
+            return ticketRepository.findByCreatedByOrderByCreatedAtDesc(currentUser).stream()
+                    .map(this::mapToResponse)
+                    .collect(Collectors.toList());
+        }
         return ticketRepository.findAll().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());

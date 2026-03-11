@@ -3,6 +3,7 @@ import { ProtectedRoute } from "../features/auth/components/ProtectedRoute";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import DashboardPage from "../pages/dashboard/DashboardPage";
+import CreateTicketPage from "../pages/tickets/CreateTicketPage";
 
 export default function AppRoutes() {
     return (
@@ -15,6 +16,7 @@ export default function AppRoutes() {
 
                 <Route element={<ProtectedRoute requireAuth={true} />}>
                     <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/tickets/new" element={<CreateTicketPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>
