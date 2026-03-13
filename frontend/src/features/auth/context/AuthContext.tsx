@@ -13,7 +13,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(() => {
-        return localStorage.getItem("token");
+        const storedToken = localStorage.getItem("token");
+        const storedRole = localStorage.getItem("role");
+
+        if (!storedToken || !storedRole) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            return null;
+        }
+
+        return storedToken;
     });
     const [role, setRole] = useState<string | null>(() => {
         return localStorage.getItem("role");
@@ -33,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem("role");
     };
 
-    const isAuthenticated = !!token;
+    const isAuthenticated = !!token && !!role;
 
     return (
         <AuthContext.Provider value={{ token, role, isAuthenticated, login, logout }}>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -19,6 +19,15 @@ export function CreateTicketForm() {
     const [focusedField, setFocusedField] = useState<string | null>(null);
     const [isSuccess, setIsSuccess] = useState(false);
     const navigate = useNavigate();
+    const redirectTimeoutRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (redirectTimeoutRef.current !== null) {
+                window.clearTimeout(redirectTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<CreateTicketFormValues>({
         resolver: zodResolver(createTicketSchema),
@@ -34,7 +43,7 @@ export function CreateTicketForm() {
             onSuccess: () => {
                 setIsSuccess(true);
                 reset();
-                setTimeout(() => {
+                redirectTimeoutRef.current = window.setTimeout(() => {
                     navigate("/dashboard");
                 }, 2000);
             }
