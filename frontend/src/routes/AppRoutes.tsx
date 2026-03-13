@@ -4,6 +4,7 @@ import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import DashboardPage from "../pages/dashboard/DashboardPage";
 import CreateTicketPage from "../pages/tickets/CreateTicketPage";
+import ViewTicketPage from "../pages/tickets/ViewTicketPage";
 
 /**
  * Defines the application's route structure with groups guarded by authentication requirements.
@@ -26,6 +27,7 @@ export default function AppRoutes() {
                 <Route element={<ProtectedRoute requireAuth={true} />}>
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/tickets/new" element={<CreateTicketPage />} />
+                    <Route path="/tickets/:id" element={<ViewTicketPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>

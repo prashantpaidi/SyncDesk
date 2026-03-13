@@ -9,6 +9,10 @@ export type TicketResponse = {
     priority: string;
     createdAt: string;
     updatedAt: string;
+    createdById: number | null;
+    createdByName: string | null;
+    assignedToId: number | null;
+    assignedToName: string | null;
 };
 
 const getTicketsApi = async (token: string): Promise<TicketResponse[]> => {
@@ -20,6 +24,11 @@ const getTicketsApi = async (token: string): Promise<TicketResponse[]> => {
             ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
     });
+
+    if (response.status === 401) {
+        window.dispatchEvent(new Event('unauthorized'));
+        throw new Error('Session expired. Please log in again.');
+    }
 
     if (!response.ok) {
         throw new Error('Failed to fetch incidents');
