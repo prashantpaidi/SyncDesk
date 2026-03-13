@@ -1,6 +1,8 @@
 package com.syncdesk.controller;
 
+import com.syncdesk.dto.ticket.request.CommentRequest;
 import com.syncdesk.dto.ticket.request.CreateTicketRequest;
+import com.syncdesk.dto.ticket.response.CommentResponse;
 import com.syncdesk.dto.ticket.response.TicketResponse;
 import com.syncdesk.entity.User;
 import com.syncdesk.enums.TicketStatus;
@@ -30,8 +32,8 @@ public class TicketController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TicketResponse>> getAllTickets() {
-        return ResponseEntity.ok(ticketService.getAllTickets());
+    public ResponseEntity<List<TicketResponse>> getAllTickets(@AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(ticketService.getAllTickets(currentUser));
     }
 
     @GetMapping("/{id}")

@@ -39,7 +39,7 @@ export function LoginForm() {
         loginMutation.mutate(data as LoginCredentials, {
             onSuccess: (responseData) => {
                 if (responseData.token) {
-                    login(responseData.token);
+                    login(responseData.token, responseData.role);
                     navigate("/dashboard");
                 } else {
                     console.error("No token received from backend");

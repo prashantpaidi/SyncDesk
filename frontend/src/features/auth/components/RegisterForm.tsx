@@ -46,7 +46,7 @@ export function RegisterForm() {
         registerMutation.mutate(apiData as RegisterCredentials, {
             onSuccess: (responseData) => {
                 if (responseData.token) {
-                    login(responseData.token);
+                    login(responseData.token, responseData.role);
                     navigate("/dashboard");
                 } else {
                     console.error("No token received from backend");

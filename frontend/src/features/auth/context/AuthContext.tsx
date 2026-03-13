@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 
 interface AuthContextType {
     token: string | null;
+    role: string | null;
     isAuthenticated: boolean;
-    login: (token: string) => void;
+    login: (token: string, role: string) => void;
     logout: () => void;
 }
 
@@ -18,23 +19,39 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(() => {
-        return localStorage.getItem("token");
+        const storedToken = localStorage.getItem("token");
+        const storedRole = localStorage.getItem("role");
+
+        if (!storedToken || !storedRole) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("role");
+            return null;
+        }
+
+        return storedToken;
+    });
+    const [role, setRole] = useState<string | null>(() => {
+        return localStorage.getItem("role");
     });
 
-    const login = (newToken: string) => {
+    const login = (newToken: string, newRole: string) => {
         setToken(newToken);
+        setRole(newRole);
         localStorage.setItem("token", newToken);
+        localStorage.setItem("role", newRole);
     };
 
     const logout = () => {
         setToken(null);
+        setRole(null);
         localStorage.removeItem("token");
+        localStorage.removeItem("role");
     };
 
-    const isAuthenticated = !!token;
+    const isAuthenticated = !!token && !!role;
 
     return (
-        <AuthContext.Provider value={{ token, isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ token, role, isAuthenticated, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

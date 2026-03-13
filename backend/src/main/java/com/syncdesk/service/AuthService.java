@@ -41,7 +41,7 @@ public class AuthService {
 
         // Generate JWT token
         var jwtToken = jwtService.generateToken(user);
-        return new AuthResponse(jwtToken);
+        return new AuthResponse(jwtToken, user.getRole().name());
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -49,15 +49,13 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.email(),
-                        request.password()
-                )
-        );
+                        request.password()));
 
         // Load user and generate token
         var user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + request.email()));
 
         var jwtToken = jwtService.generateToken(user);
-        return new AuthResponse(jwtToken);
+        return new AuthResponse(jwtToken, user.getRole().name());
     }
 }
