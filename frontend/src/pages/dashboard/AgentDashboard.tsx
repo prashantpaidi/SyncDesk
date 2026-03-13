@@ -1,20 +1,31 @@
 import { LayoutDashboard, TicketIcon, Clock, CheckCircle, MoreHorizontal } from "lucide-react";
 import { StatusBadge } from "./CustomerDashboard";
-
-// Mock data until API is implemented
-const summaryMetrics = [
-    { label: "Unassigned Tickets", value: "8", icon: LayoutDashboard, color: "text-brand-accent", bg: "bg-blue-500/10" },
-    { label: "My Open Tickets", value: "12", icon: TicketIcon, color: "text-red-500", bg: "bg-red-500/10" },
-    { label: "Due Today", value: "3", icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
-    { label: "Resolved This Week", value: "45", icon: CheckCircle, color: "text-green-500", bg: "bg-green-500/10" },
-];
-
-const mockIncidents = [
-    { id: "INC-890", title: "Cannot access internal wiki", status: "Open", priority: "High", date: "2 hours ago", customer: "John Doe" },
-    { id: "INC-889", title: "Email sync failing on mobile", status: "In Progress", priority: "Medium", date: "5 hours ago", customer: "Jane Smith" },
-];
+import { Link } from "react-router";
+import { useAuth } from "../../features/auth/context/AuthContext";
+import { useGetTickets } from "../../features/tickets/hooks/useGetTickets";
 
 export function AgentDashboard() {
+    const { userId } = useAuth();
+    const { data: tickets, isLoading: ticketsLoading } = useGetTickets();
+
+    const t = tickets || [];
+    const unassignedTickets = t.filter(x => x.assignedToId === null).length;
+    
+    // My tickets
+    const myTickets = t.filter(x => x.assignedToId === userId);
+    const myOpenTickets = myTickets.filter(x => x.status === 'OPEN' || x.status === 'IN_PROGRESS').length;
+    const dueToday = myTickets.filter(x => (x.priority === 'HIGH' || x.priority === 'CRITICAL') && x.status !== 'RESOLVED' && x.status !== 'CLOSED').length;
+    const resolvedThisWeek = myTickets.filter(x => x.status === 'RESOLVED' || x.status === 'CLOSED').length;
+
+    const myActionQueue = myTickets.filter(x => x.status === 'OPEN' || x.status === 'IN_PROGRESS');
+
+    const summaryMetrics = [
+        { label: "Unassigned Tickets", value: ticketsLoading ? "..." : unassignedTickets.toString(), icon: LayoutDashboard, color: "text-brand-accent", bg: "bg-blue-500/10" },
+        { label: "My Open Tickets", value: ticketsLoading ? "..." : myOpenTickets.toString(), icon: TicketIcon, color: "text-red-500", bg: "bg-red-500/10" },
+        { label: "Due Today", value: ticketsLoading ? "..." : dueToday.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
+        { label: "Resolved Total", value: ticketsLoading ? "..." : resolvedThisWeek.toString(), icon: CheckCircle, color: "text-green-500", bg: "bg-green-500/10" },
+    ];
+
     return (
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -72,23 +83,33 @@ export function AgentDashboard() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
-                            {mockIncidents.map((incident) => (
+                            {ticketsLoading && (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-text-muted">Loading queue...</td>
+                                </tr>
+                            )}
+                            {!ticketsLoading && myActionQueue.length === 0 && (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-text-muted">No action items in queue.</td>
+                                </tr>
+                            )}
+                            {!ticketsLoading && myActionQueue.map((incident) => (
                                 <tr key={incident.id} className="hover:bg-surface-input/30 transition-colors group">
                                     <td className="px-6 py-4 font-mono text-xs font-semibold text-text-muted">
-                                        {incident.id}
+                                        <Link to={`/tickets/${incident.id}`} className="hover:underline">#{incident.id}</Link>
                                     </td>
                                     <td className="px-6 py-4 font-medium text-text-main group-hover:text-brand-accent transition-colors cursor-pointer">
-                                        {incident.title}
+                                        <Link to={`/tickets/${incident.id}`}>{incident.title}</Link>
                                     </td>
                                     <td className="px-6 py-4 text-text-muted text-xs">
-                                        {incident.customer}
+                                        {incident.createdByName}
                                     </td>
                                     <td className="px-6 py-4">
                                         <StatusBadge status={incident.status} />
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`text-xs font-semibold ${incident.priority === "High" ? "text-red-500" :
-                                                incident.priority === "Medium" ? "text-amber-500" :
+                                        <span className={`text-xs font-semibold ${incident.priority === "HIGH" || incident.priority === "CRITICAL" ? "text-red-500" :
+                                                incident.priority === "MEDIUM" ? "text-amber-500" :
                                                     "text-green-500"
                                             }`}>
                                             {incident.priority}

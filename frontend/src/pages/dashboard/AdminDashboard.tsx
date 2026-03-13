@@ -1,14 +1,27 @@
-import { Activity, Users, ShieldAlert, Server } from "lucide-react";
-
-// Mock data until API is implemented
-const summaryMetrics = [
-    { label: "Total System Users", value: "1,248", icon: Users, color: "text-brand-accent", bg: "bg-blue-500/10" },
-    { label: "Active Agents", value: "24", icon: Activity, color: "text-green-500", bg: "bg-green-500/10" },
-    { label: "System Health", value: "99.9%", icon: Server, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-    { label: "Escalated Incidents", value: "5", icon: ShieldAlert, color: "text-red-500", bg: "bg-red-500/10" },
-];
+import React, { useState } from 'react';
+import { Activity, Users, ShieldAlert, Server, Plus } from "lucide-react";
+import { CreateManagerModal } from "../../features/auth/components/CreateManagerModal";
+import { useGetUsers } from "../../features/auth/hooks/useGetUsers";
+import { useGetTickets } from "../../features/tickets/hooks/useGetTickets";
 
 export function AdminDashboard() {
+    const [isCreateManagerOpen, setIsCreateManagerOpen] = useState(false);
+
+    const { data: users, isLoading: usersLoading } = useGetUsers();
+    const { data: tickets, isLoading: ticketsLoading } = useGetTickets();
+
+    const totalUsers = users?.length || 0;
+    const activeAgents = users?.filter(u => u.role === 'AGENT').length || 0;
+    // CRITICAL priority is usually spelled as CRITICAL or URGENT, let's just check HIGH or CRITICAL
+    const escalatedIncidents = tickets?.filter(t => t.priority === 'HIGH' || t.priority === 'CRITICAL').length || 0;
+
+    const summaryMetrics = [
+        { label: "Total System Users", value: usersLoading ? "..." : totalUsers.toString(), icon: Users, color: "text-brand-accent", bg: "bg-blue-500/10" },
+        { label: "Active Agents", value: usersLoading ? "..." : activeAgents.toString(), icon: Activity, color: "text-green-500", bg: "bg-green-500/10" },
+        { label: "System Health", value: "99.9%", icon: Server, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+        { label: "Escalated Incidents", value: ticketsLoading ? "..." : escalatedIncidents.toString(), icon: ShieldAlert, color: "text-red-500", bg: "bg-red-500/10" },
+    ];
+
     return (
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -20,7 +33,20 @@ export function AdminDashboard() {
                         System overview and administration.
                     </p>
                 </div>
+
+                <button
+                    onClick={() => setIsCreateManagerOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-xl shadow-sm hover:bg-brand-hover transition-colors font-medium text-sm"
+                >
+                    <Plus className="w-4 h-4" />
+                    Add Member
+                </button>
             </div>
+
+            <CreateManagerModal
+                isOpen={isCreateManagerOpen}
+                onClose={() => setIsCreateManagerOpen(false)}
+            />
 
             {/* Metrics Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

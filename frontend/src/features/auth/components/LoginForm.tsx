@@ -29,8 +29,8 @@ export function LoginForm() {
     const onSubmit = (data: LoginFormValues) => {
         loginMutation.mutate(data as LoginCredentials, {
             onSuccess: (responseData) => {
-                if (responseData.token) {
-                    login(responseData.token, responseData.role);
+                if (responseData.token && responseData.id !== undefined && responseData.name) {
+                    login(responseData.token, responseData.role, responseData.id, responseData.name);
                     navigate("/dashboard");
                 } else {
                     console.error("No token received from backend");

@@ -2,5 +2,7 @@ package com.syncdesk.dto.auth;
 
 public record AuthResponse(
         String token,
-        String role) {
+        String role,
+        Long id,
+        String name) {
 }
