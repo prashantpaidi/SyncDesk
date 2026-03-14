@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../../auth/context/AuthContext';
 
 export type TicketResponse = {
     id: number;
@@ -9,9 +8,14 @@ export type TicketResponse = {
     priority: string;
     createdAt: string;
     updatedAt: string;
+    createdById: number | null;
+    createdByName: string | null;
+    assignedToId: number | null;
+    assignedToName: string | null;
 };
 
-const getTicketsApi = async (token: string): Promise<TicketResponse[]> => {
+const getTicketsApi = async (): Promise<TicketResponse[]> => {
+    const token = localStorage.getItem('token');
 
     const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/tickets`, {
         method: 'GET',
@@ -21,6 +25,11 @@ const getTicketsApi = async (token: string): Promise<TicketResponse[]> => {
         },
     });
 
+    if (response.status === 401) {
+        window.dispatchEvent(new Event('unauthorized'));
+        throw new Error('Session expired. Please log in again.');
+    }
+
     if (!response.ok) {
         throw new Error('Failed to fetch incidents');
     }
@@ -29,11 +38,8 @@ const getTicketsApi = async (token: string): Promise<TicketResponse[]> => {
 };
 
 export const useGetTickets = () => {
-    const { token } = useAuth();
-
     return useQuery({
-        queryKey: ['tickets', token],
-        queryFn: () => getTicketsApi(token!),
-        enabled: !!token,
+        queryKey: ['tickets'],
+        queryFn: getTicketsApi,
     });
 };

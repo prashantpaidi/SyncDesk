@@ -110,10 +110,10 @@ export function CustomerDashboard() {
                                 {t.map((incident) => (
                                     <tr key={incident.id} className="hover:bg-surface-input/30 transition-colors group">
                                         <td className="px-6 py-4 font-mono text-xs font-semibold text-text-muted">
-                                            #{incident.id}
+                                            <Link to={`/tickets/${incident.id}`} className="hover:underline">#{incident.id}</Link>
                                         </td>
                                         <td className="px-6 py-4 font-medium text-text-main group-hover:text-brand-accent transition-colors cursor-pointer">
-                                            {incident.title}
+                                            <Link to={`/tickets/${incident.id}`}>{incident.title}</Link>
                                         </td>
                                         <td className="px-6 py-4">
                                             <StatusBadge status={incident.status} />

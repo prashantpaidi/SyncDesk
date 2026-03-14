@@ -25,6 +25,11 @@ const createTicketApi = async (data: CreateTicketRequest) => {
         body: JSON.stringify(payload),
     });
 
+    if (response.status === 401) {
+        window.dispatchEvent(new Event('unauthorized'));
+        throw new Error('Session expired. Please log in again.');
+    }
+
     if (!response.ok) {
         let errorMessage = 'Failed to create incident';
         try {

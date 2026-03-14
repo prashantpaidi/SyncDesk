@@ -1,16 +1,26 @@
-import { Users, Target, Clock, AlertTriangle } from "lucide-react";
+import { Users, Activity, AlertTriangle, Calendar } from "lucide-react";
 import { useGetTickets } from "../../features/tickets/hooks/useGetTickets";
-
-// Mock data until API is implemented
-const summaryMetrics = [
-    { label: "Team Productivity", value: "94%", icon: Target, color: "text-brand-accent", bg: "bg-blue-500/10" },
-    { label: "Active Agents", value: "18", icon: Users, color: "text-green-500", bg: "bg-green-500/10" },
-    { label: "Average SLA Time", value: "2.4 hrs", icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
-    { label: "Escalated Incidents", value: "3", icon: AlertTriangle, color: "text-red-500", bg: "bg-red-500/10" },
-];
+import { Link } from "react-router";
+import { isThisWeek } from "date-fns";
 
 export function ManagerDashboard() {
-    const { data: tickets, isLoading, isError } = useGetTickets();
+    const { data: tickets, isLoading: ticketsLoading, isError } = useGetTickets();
+
+    const unassignedCount = tickets?.filter(t => !t.assignedToId).length || 0;
+    const openCount = tickets?.filter(t => t.status === 'OPEN').length || 0;
+    const openIncidentText = ticketsLoading ? "..." : openCount.toString();
+    const criticalHighCount = tickets?.filter(t => t.priority === 'HIGH' || t.priority === 'CRITICAL').length || 0;
+    
+    const thisWeekCount = tickets?.filter(t => {
+        return t.createdAt && isThisWeek(new Date(t.createdAt));
+    }).length || 0;
+
+    const summaryMetrics = [
+        { label: "Unassigned Tickets", value: ticketsLoading ? "..." : unassignedCount.toString(), icon: Users, color: "text-brand-accent", bg: "bg-blue-500/10" },
+        { label: "Open Incidents", value: openIncidentText, icon: Activity, color: "text-green-500", bg: "bg-green-500/10" },
+        { label: "Critical & High Priority", value: ticketsLoading ? "..." : criticalHighCount.toString(), icon: AlertTriangle, color: "text-red-500", bg: "bg-red-500/10" },
+        { label: "Created This Week", value: ticketsLoading ? "..." : thisWeekCount.toString(), icon: Calendar, color: "text-purple-500", bg: "bg-purple-500/10" },
+    ];
 
     return (
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -47,31 +57,19 @@ export function ManagerDashboard() {
                 })}
             </div>
 
-            {/* SLA Breaches Section */}
-            <div className="bg-surface-card rounded-[24px] shadow-sm border border-border overflow-hidden">
-                <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface-card/50">
-                    <h2 className="text-lg font-bold text-text-main">At-Risk SLAs</h2>
-                </div>
-                <div className="p-6">
-                    <p className="text-sm text-text-muted">
-                        No immediate SLA breaches detected. This section will highlight tickets requiring manager intervention.
-                    </p>
-                </div>
-            </div>
-
             {/* All Incidents Section */}
             <div className="bg-surface-card rounded-[24px] shadow-sm border border-border overflow-hidden">
                 <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface-card/50">
                     <h2 className="text-lg font-bold text-text-main">All Created Incidents</h2>
                 </div>
                 <div className="p-6">
-                    {isLoading && <p className="text-sm text-text-muted">Loading incidents...</p>}
+                    {ticketsLoading && <p className="text-sm text-text-muted">Loading incidents...</p>}
                     {isError && <p className="text-sm text-red-500">Failed to load incidents.</p>}
-                    {!isLoading && !isError && (!tickets || tickets.length === 0) && (
+                    {!ticketsLoading && !isError && (!tickets || tickets.length === 0) && (
                         <p className="text-sm text-text-muted">No incidents found.</p>
                     )}
 
-                    {!isLoading && !isError && tickets && tickets.length > 0 && (
+                    {!ticketsLoading && !isError && tickets && tickets.length > 0 && (
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-border">
                                 <thead className="bg-surface-card/50">
@@ -80,20 +78,26 @@ export function ManagerDashboard() {
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Title</th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Status</th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Priority</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Assigned To</th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Created</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-surface-card divide-y divide-border">
                                     {tickets.map((ticket) => (
                                         <tr key={ticket.id} className="hover:bg-surface-card/50 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-main">#{ticket.id}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{ticket.title}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-main">
+                                                <Link to={`/tickets/${ticket.id}`} className="hover:underline">#{ticket.id}</Link>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">
+                                                <Link to={`/tickets/${ticket.id}`} className="hover:underline">{ticket.title}</Link>
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
                                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-brand-accent/10 text-brand-accent`}>
                                                     {ticket.status}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">{ticket.priority}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">{ticket.assignedToName || "Unassigned"}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
                                                 {new Date(ticket.createdAt).toLocaleDateString()}
                                             </td>

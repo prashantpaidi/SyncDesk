@@ -41,7 +41,7 @@ public class AuthService {
 
         // Generate JWT token
         var jwtToken = jwtService.generateToken(user);
-        return new AuthResponse(jwtToken, user.getRole().name());
+        return new AuthResponse(jwtToken, user.getRole().name(), user.getId(), user.getName());
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -56,6 +56,6 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + request.email()));
 
         var jwtToken = jwtService.generateToken(user);
-        return new AuthResponse(jwtToken, user.getRole().name());
+        return new AuthResponse(jwtToken, user.getRole().name(), user.getId(), user.getName());
     }
 }
