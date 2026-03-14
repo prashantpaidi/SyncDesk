@@ -1,80 +1,94 @@
 # SyncDesk
 
-SyncDesk is a full-stack web application featuring a Java Spring Boot backend and a modern React frontend. It provides user authentication (registration and login) powered by JWT and uses PostgreSQL for data persistence.
+SyncDesk is a robust, full-stack helpdesk and ticket management system. It features a high-performance **Java Spring Boot 4** backend and a modern, responsive **React 19** frontend.
 
-## Technologies Used
+## 🚀 Key Features
+
+- **Multi-Role Dashboards:** Tailored experiences for Administrators, Managers, Agents, and Customers.
+- **Ticket Management:** Create, view, update, and track support tickets throughout their lifecycle.
+- **Collaboration:** Add comments to tickets for internal communication and customer updates.
+- **Real-time Metrics:** Data-driven insights on dashboards for tracking team performance (Unassigned tickets, Priority counts, Weekly trends).
+- **Secure Authentication:** JWT-based stateless authentication with secure persistent storage.
+- **Responsive Design:** Premium UI built with Tailwind CSS, featuring dark mode and smooth animations.
+
+## 🛠️ Technology Stack
 
 ### Backend
-- **Java 21**
-- **Spring Boot 4.0.2** (Security, Data JPA, Validation)
-- **PostgreSQL**
-- **JWT** (for Authentication)
-- **Lombok**
-- **Maven** (Build Tool)
+- **Core:** Java 21, Spring Boot 4.0.2
+- **Security:** Spring Security, JWT (JJWT)
+- **Data:** Spring Data JPA, PostgreSQL
+- **Utilities:** Lombok, Jakarta Validation
+- **Build:** Maven
 
 ### Frontend
-- **React 19**
-- **TypeScript**
-- **Vite**
-- **Tailwind CSS 4**
-- **React Router 7**
-- **React Query** (Data Fetching)
-- **React Hook Form & Zod** (Form Handling & Validation)
-- **Lucide React & React Icons**
+- **Core:** React 19, TypeScript, Vite
+- **State Management:** TanStack React Query (v5)
+- **Routing:** React Router 7
+- **Forms:** React Hook Form & Zod
+- **Styling:** Tailwind CSS 4, Lucide React
+- **Typography:** IBM Plex Mono, Sora
 
-## Getting Started
+## 📂 Project Structure
 
-### Prerequisites
-- [Java 21](https://jdk.java.net/21/) or higher
-- [Node.js](https://nodejs.org/) & npm
-- [Docker](https://www.docker.com/) & Docker Compose (for running the database)
-
-### Running the Environment
-
-#### 1. Start the Database
-The project includes a `docker-compose.yml` file to quickly spin up a PostgreSQL instance.
-
-```bash
-cd backend
-```
-Make sure to create a `.env` file in the `backend` directory containing the following variables:
-```env
-POSTGRES_DB=syncdesk
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=yourpassword
-```
-
-Then, run:
-```bash
-docker-compose up -d
+```text
+SyncDesk/
+├── backend/                # Spring Boot Application
+│   ├── src/main/java/com/syncdesk/
+│   │   ├── config/         # Security & App Configuration
+│   │   ├── controller/     # REST API Endpoints
+│   │   ├── dto/            # Data Transfer Objects
+│   │   ├── entity/         # JPA Entities (User, Ticket, Comment)
+│   │   ├── enums/          # TicketStatus, Role
+│   │   ├── repository/     # Data Access Layer
+│   │   └── service/        # Business Logic Layer
+│   └── docker-compose.yml  # Infrastructure (PostgreSQL)
+├── frontend/               # React Application
+│   ├── src/
+│   │   ├── features/       # Modular features (auth, tickets)
+│   │   ├── pages/          # Page components & Dashboards
+│   │   ├── components/     # High-level UI components
+│   │   └── hooks/          # Shared custom hooks
+│   └── index.html
+└── docs/                   # Extended Documentation (coming soon)
 ```
 
-#### 2. Start the Backend
-The backend uses the Maven Wrapper.
+## 🚥 Getting Started
 
-**On Windows:**
-```bash
-cd backend
-mvnw.cmd spring-boot:run
-```
+### Backend Setup
 
-**On macOS/Linux:**
-```bash
-cd backend
-./mvnw spring-boot:run
-```
+1. **Environment Config:** Create a `.env` file in the `backend/` directory:
+   ```env
+   POSTGRES_DB=syncdesk
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=yourpassword
+   JWT_SECRET=your_super_secret_key_at_least_32_characters
+   ```
 
-#### 3. Start the Frontend
-The frontend is built with React and Vite. Navigate to the `frontend` directory to run it.
+2. **Run Infrastructure:**
+   ```bash
+   cd backend
+   docker-compose up -d
+   ```
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+3. **Start Application:**
+   ```bash
+   ./mvnw spring-boot:run
+   ```
 
-## Features Complete (so-far)
-- **User Authentication:** Complete registration and login flows including UI and REST API.
-- **Form Validation:** Client-side validation using React Hook Form and Zod, backed by server-side validation.
-- **RESTful API:** Structured API endpoints handling cross-origin requests (CORS).
-- **Modern UI:** Tailwind CSS for styling and cohesive typography with IBM Plex Mono and Sora fonts.
+### Frontend Setup
+
+1. **Install Dependencies:**
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+2. **Start Dev Server:**
+   ```bash
+   npm run dev
+   ```
+
+## 📖 Additional Documentation
+
+- [Architecture Overview](architecture.md)
+- [API Documentation](api_docs.md)
