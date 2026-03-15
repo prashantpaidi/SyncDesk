@@ -4,6 +4,10 @@ import { format } from "date-fns";
 import { useAuth } from "../../auth/context/AuthContext";
 import { useGetUsers } from "../../auth/hooks/useGetUsers";
 import { useAssignTicket } from "../hooks/useAssignTicket";
+import { useUpdateTicketStatus } from "../hooks/useUpdateTicketStatus";
+import { getActions } from "../utils/ticketActions";
+import { Loader2 } from "lucide-react";
+import { CommentSection } from "./CommentSection";
 
 interface TicketDetailsProps {
     ticketId: string;
@@ -15,6 +19,7 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
     const isManager = role === 'MANAGER';
     const { data: users, isLoading: usersLoading } = useGetUsers();
     const { mutate: assignTicket, isPending: isAssigning } = useAssignTicket();
+    const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateTicketStatus();
 
     const [selectedAssignee, setSelectedAssignee] = useState<number | null>(null);
 
@@ -122,6 +127,30 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
                         </button>
                     )}
                     <div className="h-8 w-px bg-[var(--color-border)] mx-1 hidden sm:block"></div>
+                    
+                    <div className="flex items-center gap-2">
+                        {getActions(ticket.status, role || '').map((action) => {
+                            const Icon = action.icon;
+                            return (
+                                <button
+                                    key={action.id}
+                                    onClick={() => updateStatus({ ticketId: Number(ticketId), status: action.status })}
+                                    disabled={isUpdatingStatus}
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-pill)] text-sm font-medium border transition-all ${action.color} ${action.hoverBg} border-current opacity-80 hover:opacity-100 disabled:opacity-50`}
+                                    title={action.label}
+                                >
+                                    {isUpdatingStatus ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <Icon className="w-4 h-4" />
+                                    )}
+                                    <span className="hidden sm:inline">{action.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <div className="h-8 w-px bg-[var(--color-border)] mx-1 hidden sm:block"></div>
                     <span className={`px-3 py-1 rounded-[var(--radius-pill)] text-sm font-medium border ${getStatusColor(ticket.status)}`}>
                         {ticket.status}
                     </span>
@@ -140,14 +169,9 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
                 </div>
             </div>
 
-            {/* This is a placeholder for future comments section */}
+            {/* Comments Section */}
             <div className="mt-12 pt-8 border-t border-[var(--color-border)]">
-                <h3 className="text-lg font-semibold text-[var(--color-text-main)] mb-6 font-sans">
-                    Activity & Comments
-                </h3>
-                <div className="text-center py-8 bg-gray-50 rounded-[var(--radius-card)] text-[var(--color-text-muted)] border border-dashed border-[var(--color-border)]">
-                    Comments section coming soon
-                </div>
+                <CommentSection ticketId={ticketId} role={role || ''} />
             </div>
         </div>
     );

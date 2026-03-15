@@ -62,11 +62,41 @@ public class TicketService {
     }
 
     @Transactional
-    public TicketResponse updateTicketStatus(Long id, TicketStatus status) {
+    public TicketResponse updateTicketStatus(Long id, TicketStatus newStatus, User currentUser) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + id));
 
-        ticket.setStatus(status);
+        TicketStatus currentStatus = ticket.getStatus();
+        Role userRole = currentUser.getRole();
+
+        if (currentStatus == TicketStatus.CLOSED) {
+            throw new IllegalArgumentException("Cannot change status of a CLOSED ticket.");
+        }
+
+        if (newStatus == TicketStatus.RESOLVED) {
+            if (userRole != Role.AGENT && userRole != Role.MANAGER) {
+                throw new java.lang.SecurityException("Only Agents and Managers can resolve tickets.");
+            }
+            if (currentStatus != TicketStatus.OPEN && currentStatus != TicketStatus.IN_PROGRESS) {
+                throw new IllegalArgumentException("Only OPEN or IN_PROGRESS tickets can be resolved.");
+            }
+        } else if (newStatus == TicketStatus.OPEN) {
+            if (userRole != Role.AGENT && userRole != Role.MANAGER) {
+                throw new java.lang.SecurityException("Only Agents and Managers can reopen tickets.");
+            }
+            if (currentStatus != TicketStatus.RESOLVED) {
+                throw new IllegalArgumentException("Only RESOLVED tickets can be reopened.");
+            }
+        } else if (newStatus == TicketStatus.CLOSED) {
+            if (userRole != Role.CUSTOMER) {
+                throw new java.lang.SecurityException("Only Customers can close tickets.");
+            }
+            if (currentStatus != TicketStatus.RESOLVED) {
+                throw new IllegalArgumentException("Only RESOLVED tickets can be closed.");
+            }
+        }
+
+        ticket.setStatus(newStatus);
         Ticket updatedTicket = ticketRepository.save(ticket);
         return mapToResponse(updatedTicket);
     }
