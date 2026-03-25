@@ -35,6 +35,15 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    /**
+     * Configures HTTP security and builds the application's SecurityFilterChain.
+     *
+     * @param http the HttpSecurity instance to configure
+     * @return the configured SecurityFilterChain enforcing CORS, disabled CSRF, stateless sessions,
+     *         permitting requests under /api/auth/**, requiring authentication for all other endpoints,
+     *         and registering the custom authentication provider and JWT authentication filter
+     * @throws Exception if an error occurs while configuring or building the security filter chain
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -62,11 +71,24 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Creates a PasswordEncoder that hashes passwords using the BCrypt algorithm.
+     *
+     * @return a PasswordEncoder that encodes passwords with BCrypt
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Creates a CorsConfigurationSource configured with the application's allowed origins and standard HTTP methods.
+     *
+     * <p>The resulting source applies the CORS configuration to all paths ("/**"), permits the HTTP methods
+     * GET, POST, PUT, DELETE, OPTIONS, and HEAD, allows all headers, and enables credentials.</p>
+     *
+     * @return a CorsConfigurationSource configured with the injected allowed origins, permitted methods, allowed headers, and credentials enabled
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

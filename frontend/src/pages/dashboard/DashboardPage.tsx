@@ -6,6 +6,13 @@ import { AgentDashboard } from "./AgentDashboard";
 import { AdminDashboard } from "./AdminDashboard";
 import { ManagerDashboard } from "./ManagerDashboard";
 
+/**
+ * Renders the protected Dashboard page, showing a heading, descriptive text, and a Logout button.
+ *
+ * The Logout button invokes the authentication context's logout handler when clicked.
+ *
+ * @returns The dashboard page's JSX element.
+ */
 export default function DashboardPage() {
     const { logout, role } = useAuth();
 

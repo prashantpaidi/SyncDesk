@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface AuthContextType {
     token: string | null;
@@ -13,7 +14,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Provides authentication context (token, `isAuthenticated`, `login`, and `logout`) to its child subtree.
+ *
+ * @param children - React nodes rendered inside the provider
+ * @returns A React element that wraps `children` with the AuthContext provider
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
+    const queryClient = useQueryClient();
     const [token, setToken] = useState<string | null>(() => {
         return localStorage.getItem("token");
     });
@@ -48,9 +56,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem("role");
         localStorage.removeItem("userId");
         localStorage.removeItem("userName");
+        
+        queryClient.clear();
     };
 
     const isAuthenticated = !!token;
+
+    useEffect(() => {
+        const handleUnauthorized = () => {
+            logout();
+        };
+        window.addEventListener('unauthorized', handleUnauthorized);
+        return () => window.removeEventListener('unauthorized', handleUnauthorized);
+    }, []);
 
     useEffect(() => {
         const handleUnauthorized = () => {
@@ -67,6 +85,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 }
 
+/**
+ * Accesses the authentication context for the current React component.
+ *
+ * @returns The authentication context object containing `token`, `isAuthenticated`, `login`, and `logout`.
+ * @throws Error if the hook is used outside of an `AuthProvider`.
+ */
 export function useAuth() {
     const context = useContext(AuthContext);
     if (context === undefined) {
