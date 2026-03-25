@@ -22,7 +22,7 @@ export function AgentDashboard() {
     const summaryMetrics = [
         { label: "Unassigned Tickets", value: ticketsLoading ? "..." : unassignedTickets.toString(), icon: LayoutDashboard, color: "text-brand-accent", bg: "bg-blue-500/10" },
         { label: "My Open Tickets", value: ticketsLoading ? "..." : myOpenTickets.toString(), icon: TicketIcon, color: "text-red-500", bg: "bg-red-500/10" },
-        { label: "Due Today", value: ticketsLoading ? "..." : dueToday.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
+        { label: "High Priority Active", value: ticketsLoading ? "..." : dueToday.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
         { label: "Resolved Total", value: ticketsLoading ? "..." : resolvedThisWeek.toString(), icon: CheckCircle, color: "text-green-500", bg: "bg-green-500/10" },
     ];
 
