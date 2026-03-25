@@ -23,16 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const queryClient = useQueryClient();
     const [token, setToken] = useState<string | null>(() => {
-        const storedToken = localStorage.getItem("token");
-        const storedRole = localStorage.getItem("role");
-
-        if (!storedToken || !storedRole) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("role");
-            return null;
-        }
-
-        return storedToken;
+        return localStorage.getItem("token");
     });
     const [role, setRole] = useState<string | null>(() => {
         return localStorage.getItem("role");
@@ -69,7 +60,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         queryClient.clear();
     };
 
-    const isAuthenticated = !!token && !!role;
+    const isAuthenticated = !!token;
+
+    useEffect(() => {
+        const handleUnauthorized = () => {
+            logout();
+        };
+        window.addEventListener('unauthorized', handleUnauthorized);
+        return () => window.removeEventListener('unauthorized', handleUnauthorized);
+    }, []);
 
     useEffect(() => {
         const handleUnauthorized = () => {

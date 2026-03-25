@@ -1,25 +1,25 @@
-import { Users, Target, Clock, AlertTriangle } from "lucide-react";
+import { Users, Activity, AlertTriangle, Calendar } from "lucide-react";
 import { useGetTickets } from "../../features/tickets/hooks/useGetTickets";
-import { useGetUsers } from "../../features/auth/hooks/useGetUsers";
 import { Link } from "react-router";
+import { isThisWeek } from "date-fns";
 
 export function ManagerDashboard() {
     const { data: tickets, isLoading: ticketsLoading, isError } = useGetTickets();
-    const { data: users, isLoading: usersLoading } = useGetUsers();
 
-    const activeAgents = users?.filter(u => u.role === 'AGENT').length || 0;
+    const unassignedCount = tickets?.filter(t => !t.assignedToId).length || 0;
+    const openCount = tickets?.filter(t => t.status === 'OPEN').length || 0;
+    const openIncidentText = ticketsLoading ? "..." : openCount.toString();
+    const criticalHighCount = tickets?.filter(t => t.priority === 'HIGH' || t.priority === 'CRITICAL').length || 0;
     
-    // Derived proxy metrics
-    const totalTickets = tickets?.length || 0;
-    const resolvedCount = tickets?.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED').length || 0;
-    const escalatedIncidents = tickets?.filter(t => t.priority === 'HIGH' || t.priority === 'CRITICAL').length || 0;
-    const teamProductivity = totalTickets > 0 ? Math.round((resolvedCount / totalTickets) * 100) : 100;
+    const thisWeekCount = tickets?.filter(t => {
+        return t.createdAt && isThisWeek(new Date(t.createdAt));
+    }).length || 0;
 
     const summaryMetrics = [
-        { label: "Team Productivity", value: ticketsLoading ? "..." : `${teamProductivity}%`, icon: Target, color: "text-brand-accent", bg: "bg-blue-500/10" },
-        { label: "Active Agents", value: usersLoading ? "..." : activeAgents.toString(), icon: Users, color: "text-green-500", bg: "bg-green-500/10" },
-        { label: "Average SLA Time", value: ticketsLoading ? "..." : (resolvedCount > 0 ? "2.4 hrs" : "0 hrs"), icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
-        { label: "Escalated Incidents", value: ticketsLoading ? "..." : escalatedIncidents.toString(), icon: AlertTriangle, color: "text-red-500", bg: "bg-red-500/10" },
+        { label: "Unassigned Tickets", value: ticketsLoading ? "..." : unassignedCount.toString(), icon: Users, color: "text-brand-accent", bg: "bg-blue-500/10" },
+        { label: "Open Incidents", value: openIncidentText, icon: Activity, color: "text-green-500", bg: "bg-green-500/10" },
+        { label: "Critical & High Priority", value: ticketsLoading ? "..." : criticalHighCount.toString(), icon: AlertTriangle, color: "text-red-500", bg: "bg-red-500/10" },
+        { label: "Created This Week", value: ticketsLoading ? "..." : thisWeekCount.toString(), icon: Calendar, color: "text-purple-500", bg: "bg-purple-500/10" },
     ];
 
     return (
@@ -57,18 +57,6 @@ export function ManagerDashboard() {
                 })}
             </div>
 
-            {/* SLA Breaches Section */}
-            <div className="bg-surface-card rounded-[24px] shadow-sm border border-border overflow-hidden">
-                <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface-card/50">
-                    <h2 className="text-lg font-bold text-text-main">At-Risk SLAs</h2>
-                </div>
-                <div className="p-6">
-                    <p className="text-sm text-text-muted">
-                        No immediate SLA breaches detected. This section will highlight tickets requiring manager intervention.
-                    </p>
-                </div>
-            </div>
-
             {/* All Incidents Section */}
             <div className="bg-surface-card rounded-[24px] shadow-sm border border-border overflow-hidden">
                 <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface-card/50">
@@ -90,6 +78,7 @@ export function ManagerDashboard() {
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Title</th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Status</th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Priority</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Assigned To</th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Created</th>
                                     </tr>
                                 </thead>
@@ -108,6 +97,7 @@ export function ManagerDashboard() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">{ticket.priority}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">{ticket.assignedToName || "Unassigned"}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
                                                 {new Date(ticket.createdAt).toLocaleDateString()}
                                             </td>

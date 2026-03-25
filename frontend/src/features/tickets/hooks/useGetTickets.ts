@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../../auth/context/AuthContext';
 
 export type TicketResponse = {
     id: number;
@@ -15,7 +14,8 @@ export type TicketResponse = {
     assignedToName: string | null;
 };
 
-const getTicketsApi = async (token: string): Promise<TicketResponse[]> => {
+const getTicketsApi = async (): Promise<TicketResponse[]> => {
+    const token = localStorage.getItem('token');
 
     const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/tickets`, {
         method: 'GET',
@@ -38,11 +38,8 @@ const getTicketsApi = async (token: string): Promise<TicketResponse[]> => {
 };
 
 export const useGetTickets = () => {
-    const { token } = useAuth();
-
     return useQuery({
-        queryKey: ['tickets', token],
-        queryFn: () => getTicketsApi(token!),
-        enabled: !!token,
+        queryKey: ['tickets'],
+        queryFn: getTicketsApi,
     });
 };

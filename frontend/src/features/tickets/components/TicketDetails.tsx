@@ -1,5 +1,9 @@
+import { useState, useEffect } from "react";
 import { useGetTicket } from "../hooks/useGetTicket";
 import { format } from "date-fns";
+import { useAuth } from "../../auth/context/AuthContext";
+import { useGetUsers } from "../../auth/hooks/useGetUsers";
+import { useAssignTicket } from "../hooks/useAssignTicket";
 
 interface TicketDetailsProps {
     ticketId: string;
@@ -7,6 +11,24 @@ interface TicketDetailsProps {
 
 export function TicketDetails({ ticketId }: TicketDetailsProps) {
     const { data: ticket, isLoading, isError, error } = useGetTicket(ticketId);
+    const { role } = useAuth();
+    const isManager = role === 'MANAGER';
+    const { data: users, isLoading: usersLoading } = useGetUsers();
+    const { mutate: assignTicket, isPending: isAssigning } = useAssignTicket();
+
+    const [selectedAssignee, setSelectedAssignee] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (ticket) {
+            setSelectedAssignee(ticket.assignedToId);
+        }
+    }, [ticket]);
+
+    const handleAssign = () => {
+        if (selectedAssignee !== null && selectedAssignee !== ticket?.assignedToId) {
+            assignTicket({ ticketId, userId: selectedAssignee });
+        }
+    };
 
     if (isLoading) {
         return (
@@ -55,9 +77,51 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
                         <span>ID: #{ticket.id}</span>
                         <span className="text-[var(--color-text-subtle)]">•</span>
                         <span>Opened on {format(new Date(ticket.createdAt), 'MMM dd, yyyy HH:mm')}</span>
+                        <span className="text-[var(--color-text-subtle)]">•</span>
+                        <div className="flex items-center gap-2">
+                            <span>Assignee:</span>
+                            {isManager ? (
+                                <div className="flex items-center gap-2">
+                                    <select
+                                        value={selectedAssignee || ""}
+                                        onChange={(e) => setSelectedAssignee(Number(e.target.value))}
+                                        disabled={isAssigning || usersLoading}
+                                        className="bg-[var(--color-surface-input)] border border-[var(--color-border)] rounded-[var(--radius-sm)] px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-brand-accent)] text-[var(--color-text-main)] max-w-[150px] truncate"
+                                    >
+                                        <option value="" disabled>Unassigned</option>
+                                        {users?.filter((u) => u.role === 'AGENT' || u.role === 'MANAGER').map((user) => (
+                                            <option key={user.id} value={user.id}>
+                                                {user.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            ) : (
+                                <span className="font-semibold text-[var(--color-text-main)]">
+                                    {ticket.assignedToName || "Unassigned"}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
+                    {selectedAssignee !== ticket.assignedToId && (
+                        <button
+                            onClick={handleAssign}
+                            disabled={isAssigning}
+                            className="px-4 py-2 text-sm font-semibold bg-[var(--color-brand-accent)] text-white rounded-[var(--radius-pill)] shadow-[var(--shadow-button)] hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center min-w-[100px]"
+                        >
+                            {isAssigning ? (
+                                <>
+                                    <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></span>
+                                    Saving...
+                                </>
+                            ) : (
+                                "Save Changes"
+                            )}
+                        </button>
+                    )}
+                    <div className="h-8 w-px bg-[var(--color-border)] mx-1 hidden sm:block"></div>
                     <span className={`px-3 py-1 rounded-[var(--radius-pill)] text-sm font-medium border ${getStatusColor(ticket.status)}`}>
                         {ticket.status}
                     </span>

@@ -44,7 +44,7 @@ public class TicketService {
 
     @Transactional(readOnly = true)
     public List<TicketResponse> getAllTickets(User currentUser) {
-        if (currentUser.getRole() == Role.CUSTOMER) {
+        if (currentUser.getRole() == com.syncdesk.enums.Role.CUSTOMER) {
             return ticketRepository.findByCreatedByOrderByCreatedAtDesc(currentUser).stream()
                     .map(this::mapToResponse)
                     .collect(Collectors.toList());

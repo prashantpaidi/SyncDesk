@@ -7,19 +7,19 @@ import { useGetTickets } from "../../features/tickets/hooks/useGetTickets";
 export function AdminDashboard() {
     const [isCreateManagerOpen, setIsCreateManagerOpen] = useState(false);
 
-    const { data: users, isLoading: usersLoading } = useGetUsers();
-    const { data: tickets, isLoading: ticketsLoading } = useGetTickets();
+    const { data: users, isLoading: usersLoading, isError: usersError } = useGetUsers();
+    const { data: tickets, isLoading: ticketsLoading, isError: ticketsError } = useGetTickets();
 
     const totalUsers = users?.length || 0;
     const activeAgents = users?.filter(u => u.role === 'AGENT').length || 0;
-    // CRITICAL priority is usually spelled as CRITICAL or URGENT, let's just check HIGH or CRITICAL
-    const escalatedIncidents = tickets?.filter(t => t.priority === 'HIGH' || t.priority === 'CRITICAL').length || 0;
+    // CRITICAL priority is usually spelled as CRITICAL or URGENT, let's just check HIGH or CRITICAL or URGENT
+    const escalatedIncidents = tickets?.filter(t => t.priority === 'HIGH' || t.priority === 'CRITICAL' || t.priority === 'URGENT').length || 0;
 
     const summaryMetrics = [
-        { label: "Total System Users", value: usersLoading ? "..." : totalUsers.toString(), icon: Users, color: "text-brand-accent", bg: "bg-blue-500/10" },
-        { label: "Active Agents", value: usersLoading ? "..." : activeAgents.toString(), icon: Activity, color: "text-green-500", bg: "bg-green-500/10" },
+        { label: "Total System Users", value: usersLoading ? "..." : usersError ? "-" : totalUsers.toString(), icon: Users, color: "text-brand-accent", bg: "bg-blue-500/10" },
+        { label: "Active Agents", value: usersLoading ? "..." : usersError ? "-" : activeAgents.toString(), icon: Activity, color: "text-green-500", bg: "bg-green-500/10" },
         { label: "System Health", value: "99.9%", icon: Server, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-        { label: "Escalated Incidents", value: ticketsLoading ? "..." : escalatedIncidents.toString(), icon: ShieldAlert, color: "text-red-500", bg: "bg-red-500/10" },
+        { label: "Escalated Incidents", value: ticketsLoading ? "..." : ticketsError ? "-" : escalatedIncidents.toString(), icon: ShieldAlert, color: "text-red-500", bg: "bg-red-500/10" },
     ];
 
     return (
