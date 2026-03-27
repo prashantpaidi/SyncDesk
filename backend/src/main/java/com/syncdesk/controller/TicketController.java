@@ -2,6 +2,7 @@ package com.syncdesk.controller;
 
 import com.syncdesk.dto.ticket.request.CommentRequest;
 import com.syncdesk.dto.ticket.request.CreateTicketRequest;
+import com.syncdesk.dto.ticket.request.StatusUpdateRequest;
 import com.syncdesk.dto.ticket.response.CommentResponse;
 import com.syncdesk.dto.ticket.response.TicketResponse;
 import com.syncdesk.entity.User;
@@ -44,8 +45,9 @@ public class TicketController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<TicketResponse> updateTicketStatus(
             @PathVariable Long id,
-            @RequestParam TicketStatus status) {
-        return ResponseEntity.ok(ticketService.updateTicketStatus(id, status));
+            @RequestBody StatusUpdateRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(ticketService.updateTicketStatus(id, request.getStatus(), currentUser));
     }
 
     @PatchMapping("/{id}/assign/{userId}")

@@ -3,6 +3,7 @@ import { StatusBadge } from "./CustomerDashboard";
 import { Link } from "react-router";
 import { useAuth } from "../../features/auth/context/AuthContext";
 import { useGetTickets } from "../../features/tickets/hooks/useGetTickets";
+import { TicketActionsMenu } from "../../features/tickets/components/TicketActionsMenu";
 
 export function AgentDashboard() {
     const { userId } = useAuth();
@@ -116,9 +117,11 @@ export function AgentDashboard() {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-center">
-                                        <button className="text-text-subtle hover:text-text-main transition-colors p-1 rounded-lg hover:bg-surface-input inline-flex">
-                                            <MoreHorizontal className="w-4 h-4" />
-                                        </button>
+                                        <TicketActionsMenu 
+                                            ticketId={incident.id} 
+                                            currentStatus={incident.status} 
+                                            role="AGENT" 
+                                        />
                                     </td>
                                 </tr>
                             ))}

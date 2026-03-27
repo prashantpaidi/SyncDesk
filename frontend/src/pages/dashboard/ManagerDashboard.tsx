@@ -1,5 +1,6 @@
 import { Users, Activity, AlertTriangle, Calendar } from "lucide-react";
 import { useGetTickets } from "../../features/tickets/hooks/useGetTickets";
+import { TicketActionsMenu } from "../../features/tickets/components/TicketActionsMenu";
 import { Link } from "react-router";
 import { isThisWeek } from "date-fns";
 
@@ -80,8 +81,9 @@ export function ManagerDashboard() {
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Priority</th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Assigned To</th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-text-subtle uppercase tracking-wider">Created</th>
+                                        <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-text-subtle uppercase tracking-wider">Actions</th>
                                     </tr>
-                                </thead>
+</thead>
                                 <tbody className="bg-surface-card divide-y divide-border">
                                     {tickets.map((ticket) => (
                                         <tr key={ticket.id} className="hover:bg-surface-card/50 transition-colors">
@@ -100,6 +102,13 @@ export function ManagerDashboard() {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">{ticket.assignedToName || "Unassigned"}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
                                                 {new Date(ticket.createdAt).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <TicketActionsMenu 
+                                                    ticketId={ticket.id} 
+                                                    currentStatus={ticket.status} 
+                                                    role="MANAGER" 
+                                                />
                                             </td>
                                         </tr>
                                     ))}
