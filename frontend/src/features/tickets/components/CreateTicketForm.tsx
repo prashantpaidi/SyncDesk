@@ -57,7 +57,7 @@ export function CreateTicketForm() {
         <>
             {/* ── Logo & Header ── */}
             <div className="text-center mb-10">
-                <div className="w-12 h-12 bg-brand-dark rounded-card flex items-center justify-center mx-auto mb-6 shadow-logo relative overflow-hidden">
+                <div className="w-12 h-12 bg-brand rounded-xl flex items-center justify-center mx-auto mb-6 shadow-logo relative overflow-hidden">
                     <AlertTriangle className="w-5 h-5 text-white" strokeWidth={2.5} />
                     <div
                         className="absolute inset-0 rounded-card pointer-events-none"
@@ -112,7 +112,7 @@ export function CreateTicketForm() {
                             }}
                             placeholder="Detailed explanation of the incident..."
                             className={`
-                                w-full rounded-2xl py-3 pl-10 pr-4
+                                w-full rounded-xl py-3 pl-10 pr-4
                                 text-sm font-medium text-text-main outline-none
                                 placeholder:text-text-subtle transition-all duration-200 resize-none
                                 ${focusedField === 'description'
@@ -146,7 +146,7 @@ export function CreateTicketForm() {
                                 setFocusedField(null);
                             }}
                             className={`
-                                w-full rounded-pill py-3 pl-10 pr-4
+                                w-full rounded-xl py-3 pl-10 pr-4
                                 text-sm font-medium text-text-main outline-none cursor-pointer appearance-none
                                 placeholder:text-text-subtle transition-all duration-200
                                 ${focusedField === 'priority'
@@ -169,13 +169,13 @@ export function CreateTicketForm() {
                     type="submit"
                     disabled={loading}
                     className={`
-                        w-full rounded-pill py-3.5 mt-2
+                        w-full rounded-xl py-3.5 mt-2
                         text-sm font-bold text-white
                         transition-all duration-200
-                        active:translate-y-0 active:shadow-none
+                        active:translate-y-0 active:shadow-none active:scale-[0.98]
                         ${loading
                             ? "bg-text-muted cursor-not-allowed"
-                            : "bg-brand-dark shadow-button hover:opacity-90 hover:-translate-y-0.5"
+                            : "bg-brand shadow-button hover:opacity-90 hover:-translate-y-0.5"
                         }
                     `}
                 >

@@ -36,14 +36,14 @@ export function CommentSection({ ticketId, role }: CommentSectionProps) {
     if (isLoading) {
         return (
             <div className="flex justify-center py-8">
-                <Loader2 className="w-8 h-8 animate-spin text-[var(--color-brand-accent)]" />
+                <Loader2 className="w-8 h-8 animate-spin text-brand-accent" />
             </div>
         );
     }
 
     if (isError) {
         return (
-            <div className="text-center py-8 text-red-500 bg-red-50 rounded-[var(--radius-card)] border border-red-100">
+            <div className="text-center py-8 text-red-500 bg-red-50 rounded-card border border-red-100">
                 Failed to load comments.
             </div>
         );
@@ -51,9 +51,9 @@ export function CommentSection({ ticketId, role }: CommentSectionProps) {
 
     return (
         <div className="mt-8">
-            <h3 className="text-xl font-bold text-[var(--color-text-main)] mb-6 font-sans flex items-center gap-2">
+            <h3 className="text-xl font-bold text-text-main mb-6 font-sans flex items-center gap-2">
                 Activity & Comments
-                <span className="bg-[var(--color-surface-input)] text-[var(--color-text-muted)] text-sm px-2 py-0.5 rounded-full font-mono font-normal">
+                <span className="bg-surface-input text-text-muted text-sm px-2 py-0.5 rounded-full font-mono font-normal">
                     {comments?.length || 0}
                 </span>
             </h3>
@@ -61,49 +61,49 @@ export function CommentSection({ ticketId, role }: CommentSectionProps) {
             <div className="space-y-6 mb-8">
                 {comments && comments.length > 0 ? (
                     comments.map((comment) => (
-                        <div key={comment.id} className={`flex flex-col gap-2 p-5 rounded-[var(--radius-card)] border transition-all ${
+                        <div key={comment.id} className={`flex flex-col gap-2 p-5 rounded-card border transition-all ${
                             !comment.isVisibleToUser 
-                                ? 'bg-amber-50/50 border-amber-100 shadow-sm' 
-                                : 'bg-white border-[var(--color-border)]'
+                                ? 'bg-warning-bg border-warning-border shadow-sm' 
+                                : 'bg-surface-card border-border'
                         }`}>
                             <div className="flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-3">
-                                    <span className="font-bold text-[var(--color-text-main)] text-sm">
+                                    <span className="font-bold text-text-main text-sm">
                                         {comment.authorName}
                                     </span>
-                                    <span className="text-[var(--color-text-subtle)] text-xs font-mono">
+                                    <span className="text-text-subtle text-xs font-mono">
                                         {format(new Date(comment.createdAt), 'MMM dd, HH:mm')}
                                     </span>
                                 </div>
                                 {!comment.isVisibleToUser && (
-                                    <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-[var(--radius-sm)] bg-amber-100 text-amber-800 text-[10px] font-bold uppercase tracking-wider border border-amber-200">
+                                    <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-warning-bg text-warning text-[10px] font-bold uppercase tracking-wider border border-warning-border">
                                         <Lock className="w-3 h-3" />
                                         Internal Note
                                     </span>
                                 )}
                             </div>
-                            <div className="text-[var(--color-text-main)] text-sm leading-relaxed whitespace-pre-wrap">
+                            <div className="text-text-main text-sm leading-relaxed whitespace-pre-wrap">
                                 {comment.content}
                             </div>
                         </div>
                     ))
                 ) : (
-                    <div className="text-center py-10 bg-[var(--color-surface-card)] rounded-[var(--radius-card)] text-[var(--color-text-muted)] border border-dashed border-[var(--color-border)]">
+                    <div className="text-center py-10 bg-surface-card rounded-card text-text-muted border border-dashed border-border">
                         No comments yet. Start the conversation!
                     </div>
                 )}
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-[var(--color-surface-card)] border border-[var(--color-border)] rounded-[var(--radius-card)] p-4 shadow-sm">
+            <form onSubmit={handleSubmit} className="bg-surface-card border border-border rounded-card p-4 shadow-sm">
                 <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Type your message here..."
-                    className="w-full bg-transparent border-none focus:ring-0 text-[var(--color-text-main)] placeholder-[var(--color-text-muted)] text-sm min-h-[100px] resize-none pb-4"
+                    className="w-full bg-transparent border-none focus:ring-0 text-text-main placeholder-text-muted text-sm min-h-[100px] resize-none pb-4"
                     disabled={isSubmitting}
                 />
                 
-                <div className="flex items-center justify-between gap-4 pt-4 border-t border-[var(--color-border)]">
+                <div className="flex items-center justify-between gap-4 pt-4 border-t border-border">
                     <div className="flex items-center gap-4">
                         {isAgentOrManager && (
                             <label className="flex items-center gap-2.5 cursor-pointer group">
@@ -112,7 +112,7 @@ export function CommentSection({ ticketId, role }: CommentSectionProps) {
                                         type="checkbox"
                                         checked={isVisibleToUser}
                                         onChange={(e) => setIsVisibleToUser(e.target.checked)}
-                                        className="peer appearance-none w-5 h-5 border-2 border-[var(--color-border)] rounded-[4px] checked:bg-[var(--color-brand-accent)] checked:border-[var(--color-brand-accent)] transition-all cursor-pointer"
+                                        className="peer appearance-none w-5 h-5 border-2 border-border rounded-[4px] checked:bg-brand-accent checked:border-brand-accent transition-all cursor-pointer"
                                     />
                                     <svg
                                         className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -124,7 +124,7 @@ export function CommentSection({ ticketId, role }: CommentSectionProps) {
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                     </svg>
                                 </div>
-                                <span className="text-sm font-medium text-[var(--color-text-main)] group-hover:text-[var(--color-brand-accent)] transition-colors">
+                                <span className="text-sm font-medium text-text-main group-hover:text-brand-accent transition-colors">
                                     Visible to Customer
                                 </span>
                             </label>
@@ -134,7 +134,7 @@ export function CommentSection({ ticketId, role }: CommentSectionProps) {
                     <button
                         type="submit"
                         disabled={!content.trim() || isSubmitting}
-                        className="flex items-center gap-2 px-5 py-2 bg-[var(--color-brand-accent)] text-white rounded-[var(--radius-pill)] text-sm font-bold shadow-[var(--shadow-button)] hover:opacity-90 disabled:opacity-50 transition-all"
+                        className="flex items-center gap-2 px-6 py-2 bg-brand text-white rounded-xl text-sm font-bold shadow-button hover:opacity-90 disabled:opacity-50 transition-all active:scale-95"
                     >
                         {isSubmitting ? (
                             <Loader2 className="w-4 h-4 animate-spin" />

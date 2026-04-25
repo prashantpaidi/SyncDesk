@@ -1,49 +1,105 @@
 @import "tailwindcss";
 
-@theme inline {
-    --font-sans: "Sora", sans-serif;
-    --font-mono: "IBM Plex Mono", monospace;
+:root {
+    --color-status-success: #22C55E;
+    --color-status-success-bg: rgba(34, 197, 94, 0.1);
+    --color-status-success-border: rgba(34, 197, 94, 0.2);
+
+    --color-status-warning: #EAB308;
+    --color-status-warning-bg: rgba(234, 179, 8, 0.1);
+    --color-status-warning-border: rgba(234, 179, 8, 0.2);
+
+    --color-status-info: #3B82F6;
+    --color-status-info-bg: rgba(59, 130, 246, 0.1);
+    --color-status-info-border: rgba(59, 130, 246, 0.2);
+
+    --color-status-error: #EF4444;
+    --color-status-error-bg: rgba(239, 68, 68, 0.1);
+    --color-status-error-border: rgba(239, 68, 68, 0.2);
+
+    --color-status-urgent: #F97316;
+    --color-status-urgent-bg: rgba(249, 115, 22, 0.1);
+    --color-status-urgent-border: rgba(249, 115, 22, 0.2);
 }
 
 @theme {
-    /* ─── Brand Colors ─────────────────────────────────────────── */
+    /* ─── Typography ───────────────────────────────────────────── */
+    --font-sans: "Sora", sans-serif;
+    --font-mono: "IBM Plex Mono", monospace;
+    
+    --font-weight-thin: 100;
+    --font-weight-extrabold: 800;
+    
+    --tracking-tight: -0.02em;
+    --tracking-wide: 0.025em;
+
+    /* ─── Brand Colors (Design Tokens) ─────────────────────────── */
     --color-brand-dark: #0F172A;
-    /* primary button, logo bg  */
     --color-brand-accent: #2563EB;
-    /* focus rings, links       */
+    
+    /* Semantic Aliases */
+    --color-primary: var(--color-brand-accent);
+    --color-secondary: var(--color-brand-dark);
+    --color-brand: var(--color-brand-accent);
+    --color-brand-hover: #1D4ED8;
+
+    /* ─── Status Colors (Semantic Buckets) ─────────────────────── */
+    --color-success: var(--color-status-success);
+    --color-success-bg: var(--color-status-success-bg);
+    --color-success-border: var(--color-status-success-border);
+
+    --color-warning: var(--color-status-warning);
+    --color-warning-bg: var(--color-status-warning-bg);
+    --color-warning-border: var(--color-status-warning-border);
+
+    --color-info: var(--color-status-info);
+    --color-info-bg: var(--color-status-info-bg);
+    --color-info-border: var(--color-status-info-border);
+
+    --color-error: var(--color-status-error);
+    --color-error-bg: var(--color-status-error-bg);
+    --color-error-border: var(--color-status-error-border);
+
+    --color-urgent: var(--color-status-urgent);
+    --color-urgent-bg: var(--color-status-urgent-bg);
+    --color-urgent-border: var(--color-status-urgent-border);
 
     /* ─── Surface Colors ───────────────────────────────────────── */
     --color-surface-input: #F1F5F9;
-    /* unfocused input bg       */
     --color-surface-card: #FFFFFF;
-    /* page / card background   */
+    --color-surface-muted: #F8FAFC;
 
     /* ─── Text Colors ──────────────────────────────────────────── */
     --color-text-main: #0F172A;
-    /* headings, body copy      */
     --color-text-muted: #64748B;
-    /* subtitles, descriptions  */
     --color-text-subtle: #94A3B8;
-    /* icons, divider labels    */
 
     /* ─── Border Colors ────────────────────────────────────────── */
     --color-border: #E2E8F0;
-    /* social buttons, dividers */
     --color-border-focus: #2563EB;
-    /* focused input border     */
 
     /* ─── Shadows ──────────────────────────────────────────────── */
     --shadow-logo: 0 8px 32px rgba(15, 23, 42, 0.18), 0 2px 8px rgba(15, 23, 42, 0.10);
     --shadow-button: 0 4px 20px rgba(15, 23, 42, 0.18), 0 1px 4px rgba(15, 23, 42, 0.10);
     --shadow-input: 0 0 0 4px rgba(37, 99, 235, 0.08);
 
-    /* ─── Border Radius ────────────────────────────────────────── */
+    /* ─── Layout & Spacing ─────────────────────────────────────── */
     --radius-pill: 9999px;
-    /* inputs, buttons          */
     --radius-card: 0.75rem;
-    /* logo box                 */
+    
+    --spacing-128: 32rem;
+    
+    --breakpoint-2xl: 1536px;
+}
 
-    /* ─── Letter Spacing ───────────────────────────────────────── */
-    --tracking-tight: -0.02em;
-    /* headings                 */
+@utility bg-glow {
+    background-image: 
+        radial-gradient(circle at 20% 20%, color-mix(in oklch, var(--color-brand-accent) 5%, transparent) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, color-mix(in oklch, var(--color-brand-dark) 3%, transparent) 0%, transparent 50%);
+}
+
+@utility bg-glow-variant {
+    background-image: 
+        radial-gradient(circle at 10% 90%, color-mix(in oklch, var(--color-brand-accent) 4%, transparent) 0%, transparent 60%),
+        radial-gradient(circle at 90% 10%, color-mix(in oklch, var(--color-brand-dark) 2%, transparent) 0%, transparent 40%);
 }

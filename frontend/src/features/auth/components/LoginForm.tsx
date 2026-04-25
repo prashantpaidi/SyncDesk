@@ -54,7 +54,7 @@ export function LoginForm() {
         <>
             {/* ── Logo & Header ── */}
             <div className="text-center mb-10">
-                <div className="w-12 h-12 bg-brand-dark rounded-card flex items-center justify-center mx-auto mb-6 shadow-logo relative overflow-hidden">
+                <div className="w-12 h-12 bg-brand rounded-xl flex items-center justify-center mx-auto mb-6 shadow-logo relative overflow-hidden">
                     <Zap className="w-5 h-5 text-white" strokeWidth={2.5} fill="currentColor" />
                     <div
                         className="absolute inset-0 rounded-card pointer-events-none"
@@ -97,7 +97,7 @@ export function LoginForm() {
                         <a href="#" className="text-[11px] font-semibold text-brand-accent hover:opacity-80 transition-opacity">
                             Forgot?
                         </a>
-                    } 
+                    }
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     icon={<Lock />}
@@ -122,15 +122,15 @@ export function LoginForm() {
                     type="submit"
                     disabled={loading}
                     className={`
-            w-full rounded-pill py-3.5
-            text-sm font-bold text-white
-            transition-all duration-200
-            active:translate-y-0 active:shadow-none
-            ${loading
+                        w-full rounded-xl py-3.5
+                        text-sm font-bold text-white
+                        transition-all duration-200
+                        active:translate-y-0 active:shadow-none active:scale-95
+                        ${loading
                             ? "bg-text-muted cursor-not-allowed"
-                            : "bg-brand-dark shadow-button hover:opacity-90 hover:-translate-y-0.5"
+                            : "bg-brand shadow-button hover:opacity-90 hover:-translate-y-0.5"
                         }
-          `}
+                    `}
                 >
                     {loading ? (
                         <span className="flex items-center justify-center gap-2">

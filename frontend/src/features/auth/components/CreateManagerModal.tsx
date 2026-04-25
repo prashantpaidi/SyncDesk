@@ -63,9 +63,9 @@ export function CreateManagerModal({ isOpen, onClose }: Props) {
                 <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-surface-card/50 shrink-0">
                     <div className="flex items-center gap-2 text-text-main">
                         <UserPlus className="w-5 h-5 text-brand" />
-                        <h2 className="text-lg font-bold">Add Member</h2>
+                        <h2 className="text-lg font-bold font-sans">Add Member</h2>
                     </div>
-                    <button 
+                    <button
                         onClick={onClose}
                         className="p-1 rounded-lg text-text-muted hover:text-text-main hover:bg-surface-hover transition-colors"
                     >
@@ -75,12 +75,12 @@ export function CreateManagerModal({ isOpen, onClose }: Props) {
 
                 <div className="p-6 overflow-y-auto">
                     {error && (
-                        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-medium">
+                        <div className="mb-4 p-3 bg-error-bg border border-error-border text-error rounded-card text-sm font-medium">
                             {error}
                         </div>
                     )}
                     {successMessage && (
-                        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 text-green-500 rounded-xl text-sm font-medium">
+                        <div className="mb-4 p-3 bg-success-bg border border-success-border text-success rounded-card text-sm font-medium">
                             {successMessage}
                         </div>
                     )}
@@ -190,7 +190,7 @@ export function CreateManagerModal({ isOpen, onClose }: Props) {
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 text-sm font-medium text-text-muted hover:text-text-main bg-surface hover:bg-surface-hover rounded-xl transition-colors"
+                                className="px-4 py-2 text-sm font-medium text-text-muted hover:text-text-main bg-surface-input hover:bg-surface-muted rounded-pill transition-colors border border-border"
                                 disabled={isPending}
                             >
                                 Cancel
@@ -198,7 +198,7 @@ export function CreateManagerModal({ isOpen, onClose }: Props) {
                             <button
                                 type="submit"
                                 disabled={isPending}
-                                className="px-4 py-2 text-sm font-medium text-white bg-brand hover:bg-brand-hover rounded-xl shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]"
+                                className="px-5 py-2 text-sm font-bold text-white bg-brand hover:bg-brand-hover rounded-pill shadow-button hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]"
                             >
                                 {isPending ? (
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

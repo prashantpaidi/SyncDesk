@@ -75,15 +75,15 @@ export function InputField({
                     }}
                     placeholder={placeholder}
                     className={`
-            w-full rounded-pill py-3 pl-10 ${rightElement ? "pr-12" : "pr-4"}
-            text-sm font-medium text-text-main outline-none
-            placeholder:text-text-subtle transition-all duration-200
-            ${type === "password" || type === "text" && rightElement ? (type === "text" ? "font-sans" : "font-mono") : ""}
-            ${isFocused
+                        w-full rounded-xl py-3 pl-10 ${rightElement ? "pr-12" : "pr-4"}
+                        text-sm font-medium text-text-main outline-none
+                        placeholder:text-text-subtle transition-all duration-200
+                        ${type === "password" || type === "text" && rightElement ? (type === "text" ? "font-sans" : "font-mono") : ""}
+                        ${isFocused
                             ? "bg-surface-card border border-border-focus shadow-input"
                             : "bg-surface-input border border-transparent"
                         }
-          `}
+                    `}
                 />
                 {rightElement && (
                     <div className="absolute right-4 top-1/2 -translate-y-1/2">
