@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "tickets")
+@Table(name = "tickets", indexes = {
+        @Index(name = "idx_ticket_status_priority", columnList = "status, priority")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
