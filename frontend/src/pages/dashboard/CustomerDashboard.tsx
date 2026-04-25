@@ -5,21 +5,7 @@ import { TicketActionsMenu } from "../../features/tickets/components/TicketActio
 
 
 
-export const StatusBadge = ({ status }: { status: string }) => {
-    let style = "";
-    switch (status) {
-        case "OPEN": style = "bg-red-500/10 text-red-600 border border-red-500/20"; break;
-        case "IN_PROGRESS": style = "bg-amber-500/10 text-amber-600 border border-amber-500/20"; break;
-        case "RESOLVED": style = "bg-green-500/10 text-green-600 border border-green-500/20"; break;
-        case "CLOSED": style = "bg-gray-500/10 text-gray-600 border border-gray-500/20"; break;
-        default: style = "bg-gray-500/10 text-gray-600 border border-gray-500/20"; break;
-    }
-    return (
-        <span className={`px-2.5 py-1 text-xs font-semibold rounded-pill ${style}`}>
-            {status}
-        </span>
-    );
-};
+import { StatusBadge } from "../../features/tickets/components/StatusBadge";
 
 export function CustomerDashboard() {
     const { data: tickets, isLoading, isError } = useGetTickets();
@@ -31,10 +17,10 @@ export function CustomerDashboard() {
     const resolved = t.filter(x => x.status === 'RESOLVED' || x.status === 'CLOSED').length;
 
     const summaryMetrics = [
-        { label: "Total Incidents", value: total.toString(), icon: LayoutDashboard, color: "text-brand-accent", bg: "bg-blue-500/10" },
-        { label: "Open", value: open.toString(), icon: TicketIcon, color: "text-red-500", bg: "bg-red-500/10" },
-        { label: "In Progress", value: inProgress.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
-        { label: "Resolved", value: resolved.toString(), icon: CheckCircle, color: "text-green-500", bg: "bg-green-500/10" },
+        { label: "Total Incidents", value: total.toString(), icon: LayoutDashboard, color: "text-info", bg: "bg-info-bg" },
+        { label: "Open", value: open.toString(), icon: TicketIcon, color: "text-error", bg: "bg-error-bg" },
+        { label: "In Progress", value: inProgress.toString(), icon: Clock, color: "text-warning", bg: "bg-warning-bg" },
+        { label: "Resolved", value: resolved.toString(), icon: CheckCircle, color: "text-success", bg: "bg-success-bg" },
     ];
 
     return (
@@ -51,7 +37,7 @@ export function CustomerDashboard() {
                 </div>
                 <Link
                     to="/tickets/new"
-                    className="sm:hidden flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-dark text-white text-sm font-semibold rounded-pill shadow-button active:scale-95 transition-all"
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-brand text-white text-sm font-semibold rounded-xl shadow-button hover:opacity-90 active:scale-95 transition-all"
                 >
                     <Plus className="w-4 h-4" />
                     Create Incident
@@ -63,7 +49,7 @@ export function CustomerDashboard() {
                 {summaryMetrics.map((metric) => {
                     const Icon = metric.icon;
                     return (
-                        <div key={metric.label} className="bg-surface-card p-5 sm:p-6 rounded-[20px] shadow-sm border border-border flex flex-col gap-4 group hover:border-border-focus transition-colors">
+                        <div key={metric.label} className="bg-surface-card p-5 sm:p-6 rounded-card shadow-sm border border-border flex flex-col gap-4 group hover:border-brand-accent transition-colors">
                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${metric.bg}`}>
                                 <Icon className={`w-6 h-6 ${metric.color}`} />
                             </div>
@@ -81,7 +67,7 @@ export function CustomerDashboard() {
             </div>
 
             {/* Recent Tickets Section */}
-            <div className="bg-surface-card rounded-[24px] shadow-sm border border-border overflow-hidden">
+            <div className="bg-surface-card rounded-card shadow-logo border border-border overflow-hidden">
                 <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface-card/50">
                     <h2 className="text-lg font-bold text-text-main">My Recent Incidents</h2>
                     <button className="text-sm font-semibold text-brand-accent hover:opacity-80 transition-opacity">
@@ -120,21 +106,16 @@ export function CustomerDashboard() {
                                             <StatusBadge status={incident.status} />
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`text-xs font-semibold ${incident.priority === "HIGH" || incident.priority === "CRITICAL" ? "text-red-500" :
-                                                incident.priority === "MEDIUM" ? "text-amber-500" :
-                                                    "text-green-500"
-                                                }`}>
-                                                {incident.priority}
-                                            </span>
+                                            <StatusBadge status={incident.priority} />
                                         </td>
                                         <td className="px-6 py-4 text-text-muted text-xs">
                                             {new Date(incident.createdAt).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <TicketActionsMenu 
-                                                ticketId={incident.id} 
-                                                currentStatus={incident.status} 
-                                                role="CUSTOMER" 
+                                            <TicketActionsMenu
+                                                ticketId={incident.id}
+                                                currentStatus={incident.status}
+                                                role="CUSTOMER"
                                             />
                                         </td>
                                     </tr>

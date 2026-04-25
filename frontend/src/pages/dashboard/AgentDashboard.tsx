@@ -1,5 +1,5 @@
-import { LayoutDashboard, TicketIcon, Clock, CheckCircle, MoreHorizontal } from "lucide-react";
-import { StatusBadge } from "./CustomerDashboard";
+import { LayoutDashboard, TicketIcon, Clock, CheckCircle, MoreHorizontal, Plus } from "lucide-react";
+import { StatusBadge } from "../../features/tickets/components/StatusBadge";
 import { Link } from "react-router";
 import { useAuth } from "../../features/auth/context/AuthContext";
 import { useGetTickets } from "../../features/tickets/hooks/useGetTickets";
@@ -11,7 +11,7 @@ export function AgentDashboard() {
 
     const t = tickets || [];
     const unassignedTickets = t.filter(x => x.assignedToId === null).length;
-    
+
     // My tickets
     const myTickets = t.filter(x => x.assignedToId === userId);
     const myOpenTickets = myTickets.filter(x => x.status === 'OPEN' || x.status === 'IN_PROGRESS').length;
@@ -21,10 +21,10 @@ export function AgentDashboard() {
     const myActionQueue = myTickets.filter(x => x.status === 'OPEN' || x.status === 'IN_PROGRESS');
 
     const summaryMetrics = [
-        { label: "Unassigned Tickets", value: ticketsLoading ? "..." : unassignedTickets.toString(), icon: LayoutDashboard, color: "text-brand-accent", bg: "bg-blue-500/10" },
-        { label: "My Open Tickets", value: ticketsLoading ? "..." : myOpenTickets.toString(), icon: TicketIcon, color: "text-red-500", bg: "bg-red-500/10" },
-        { label: "High Priority Active", value: ticketsLoading ? "..." : dueToday.toString(), icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
-        { label: "Resolved Total", value: ticketsLoading ? "..." : resolvedThisWeek.toString(), icon: CheckCircle, color: "text-green-500", bg: "bg-green-500/10" },
+        { label: "Unassigned Tickets", value: ticketsLoading ? "..." : unassignedTickets.toString(), icon: LayoutDashboard, color: "text-info", bg: "bg-info-bg" },
+        { label: "My Open Tickets", value: ticketsLoading ? "..." : myOpenTickets.toString(), icon: TicketIcon, color: "text-error", bg: "bg-error-bg" },
+        { label: "High Priority Active", value: ticketsLoading ? "..." : dueToday.toString(), icon: Clock, color: "text-warning", bg: "bg-warning-bg" },
+        { label: "Resolved Total", value: ticketsLoading ? "..." : resolvedThisWeek.toString(), icon: CheckCircle, color: "text-success", bg: "bg-success-bg" },
     ];
 
     return (
@@ -38,6 +38,14 @@ export function AgentDashboard() {
                         Manage your assigned incidents and queues.
                     </p>
                 </div>
+
+                <Link
+                    to="/tickets/new"
+                    className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-xl shadow-button hover:opacity-90 transition-all font-semibold text-sm active:scale-95"
+                >
+                    <Plus className="w-4 h-4" />
+                    New Incident
+                </Link>
             </div>
 
             {/* Metrics Grid */}
@@ -45,7 +53,7 @@ export function AgentDashboard() {
                 {summaryMetrics.map((metric) => {
                     const Icon = metric.icon;
                     return (
-                        <div key={metric.label} className="bg-surface-card p-5 sm:p-6 rounded-[20px] shadow-sm border border-border flex flex-col gap-4 group hover:border-border-focus transition-colors">
+                        <div key={metric.label} className="bg-surface-card p-5 sm:p-6 rounded-card shadow-sm border border-border flex flex-col gap-4 group hover:border-brand-accent transition-colors">
                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${metric.bg}`}>
                                 <Icon className={`w-6 h-6 ${metric.color}`} />
                             </div>
@@ -63,7 +71,7 @@ export function AgentDashboard() {
             </div>
 
             {/* Queue Section */}
-            <div className="bg-surface-card rounded-[24px] shadow-sm border border-border overflow-hidden">
+            <div className="bg-surface-card rounded-card shadow-logo border border-border overflow-hidden">
                 <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface-card/50">
                     <h2 className="text-lg font-bold text-text-main">My Action Queue</h2>
                     <button className="text-sm font-semibold text-brand-accent hover:opacity-80 transition-opacity">
@@ -109,18 +117,13 @@ export function AgentDashboard() {
                                         <StatusBadge status={incident.status} />
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`text-xs font-semibold ${incident.priority === "HIGH" || incident.priority === "CRITICAL" ? "text-red-500" :
-                                                incident.priority === "MEDIUM" ? "text-amber-500" :
-                                                    "text-green-500"
-                                            }`}>
-                                            {incident.priority}
-                                        </span>
+                                        <StatusBadge status={incident.priority} />
                                     </td>
                                     <td className="px-6 py-4 text-center">
-                                        <TicketActionsMenu 
-                                            ticketId={incident.id} 
-                                            currentStatus={incident.status} 
-                                            role="AGENT" 
+                                        <TicketActionsMenu
+                                            ticketId={incident.id}
+                                            currentStatus={incident.status}
+                                            role="AGENT"
                                         />
                                     </td>
                                 </tr>

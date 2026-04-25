@@ -10,20 +10,14 @@ export default function ViewTicketPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[var(--color-surface-input)] font-sans antialiased relative">
-            {/* Subtle background gradient similar to CreateTicketPage but slightly varied */}
-            <div
-                className="fixed inset-0 pointer-events-none"
-                style={{
-                    backgroundImage:
-                        "radial-gradient(circle at 10% 90%, color-mix(in oklch, var(--color-brand-accent) 4%, transparent) 0%, transparent 60%), radial-gradient(circle at 90% 10%, color-mix(in oklch, var(--color-brand-dark) 2%, transparent) 0%, transparent 40%)",
-                }}
-            />
+        <div className="min-h-screen bg-surface-input font-sans antialiased relative">
+            {/* Subtle background gradient utility */}
+            <div className="fixed inset-0 pointer-events-none bg-glow-variant" />
 
             <div className="relative z-10 container mx-auto px-4 py-8">
                 <button
                     onClick={() => navigate('/dashboard')}
-                    className="mb-6 flex items-center text-[var(--color-text-muted)] hover:text-[var(--color-brand-accent)] transition-colors group px-4 py-2 rounded-[var(--radius-pill)] hover:bg-white hover:shadow-[var(--shadow-button)]"
+                    className="mb-6 flex items-center text-text-muted hover:text-brand-accent transition-colors group px-4 py-2 rounded-pill hover:bg-surface-card shadow-button border border-transparent hover:border-border"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"

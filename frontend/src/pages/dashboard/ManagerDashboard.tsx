@@ -1,4 +1,5 @@
 import { Users, Activity, AlertTriangle, Calendar } from "lucide-react";
+import { StatusBadge } from "../../features/tickets/components/StatusBadge";
 import { useGetTickets } from "../../features/tickets/hooks/useGetTickets";
 import { TicketActionsMenu } from "../../features/tickets/components/TicketActionsMenu";
 import { Link } from "react-router";
@@ -17,10 +18,10 @@ export function ManagerDashboard() {
     }).length || 0;
 
     const summaryMetrics = [
-        { label: "Unassigned Tickets", value: ticketsLoading ? "..." : unassignedCount.toString(), icon: Users, color: "text-brand-accent", bg: "bg-blue-500/10" },
-        { label: "Open Incidents", value: openIncidentText, icon: Activity, color: "text-green-500", bg: "bg-green-500/10" },
-        { label: "Critical & High Priority", value: ticketsLoading ? "..." : criticalHighCount.toString(), icon: AlertTriangle, color: "text-red-500", bg: "bg-red-500/10" },
-        { label: "Created This Week", value: ticketsLoading ? "..." : thisWeekCount.toString(), icon: Calendar, color: "text-purple-500", bg: "bg-purple-500/10" },
+        { label: "Unassigned Tickets", value: ticketsLoading ? "..." : unassignedCount.toString(), icon: Users, color: "text-info", bg: "bg-info-bg" },
+        { label: "Open Incidents", value: openIncidentText, icon: Activity, color: "text-success", bg: "bg-success-bg" },
+        { label: "Critical & High Priority", value: ticketsLoading ? "..." : criticalHighCount.toString(), icon: AlertTriangle, color: "text-error", bg: "bg-error-bg" },
+        { label: "Created This Week", value: ticketsLoading ? "..." : thisWeekCount.toString(), icon: Calendar, color: "text-info", bg: "bg-info-bg" },
     ];
 
     return (
@@ -41,7 +42,7 @@ export function ManagerDashboard() {
                 {summaryMetrics.map((metric) => {
                     const Icon = metric.icon;
                     return (
-                        <div key={metric.label} className="bg-surface-card p-5 sm:p-6 rounded-[20px] shadow-sm border border-border flex flex-col gap-4 group hover:border-border-focus transition-colors">
+                        <div key={metric.label} className="bg-surface-card p-5 sm:p-6 rounded-card shadow-sm border border-border flex flex-col gap-4 group hover:border-brand-accent transition-colors">
                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${metric.bg}`}>
                                 <Icon className={`w-6 h-6 ${metric.color}`} />
                             </div>
@@ -59,7 +60,7 @@ export function ManagerDashboard() {
             </div>
 
             {/* All Incidents Section */}
-            <div className="bg-surface-card rounded-[24px] shadow-sm border border-border overflow-hidden">
+            <div className="bg-surface-card rounded-card shadow-logo border border-border overflow-hidden">
                 <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface-card/50">
                     <h2 className="text-lg font-bold text-text-main">All Created Incidents</h2>
                 </div>
@@ -94,11 +95,11 @@ export function ManagerDashboard() {
                                                 <Link to={`/tickets/${ticket.id}`} className="hover:underline">{ticket.title}</Link>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-brand-accent/10 text-brand-accent`}>
-                                                    {ticket.status}
-                                                </span>
+                                                <StatusBadge status={ticket.status} />
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">{ticket.priority}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
+                                                <StatusBadge status={ticket.priority} />
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">{ticket.assignedToName || "Unassigned"}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
                                                 {new Date(ticket.createdAt).toLocaleDateString()}

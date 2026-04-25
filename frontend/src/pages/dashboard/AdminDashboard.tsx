@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Activity, Users, ShieldAlert, Server, Plus } from "lucide-react";
 import { CreateManagerModal } from "../../features/auth/components/CreateManagerModal";
 import { useGetUsers } from "../../features/auth/hooks/useGetUsers";
@@ -16,10 +16,10 @@ export function AdminDashboard() {
     const escalatedIncidents = tickets?.filter(t => t.priority === 'HIGH' || t.priority === 'CRITICAL' || t.priority === 'URGENT').length || 0;
 
     const summaryMetrics = [
-        { label: "Total System Users", value: usersLoading ? "..." : usersError ? "-" : totalUsers.toString(), icon: Users, color: "text-brand-accent", bg: "bg-blue-500/10" },
-        { label: "Active Agents", value: usersLoading ? "..." : usersError ? "-" : activeAgents.toString(), icon: Activity, color: "text-green-500", bg: "bg-green-500/10" },
-        { label: "System Health", value: "99.9%", icon: Server, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-        { label: "Escalated Incidents", value: ticketsLoading ? "..." : ticketsError ? "-" : escalatedIncidents.toString(), icon: ShieldAlert, color: "text-red-500", bg: "bg-red-500/10" },
+        { label: "Total System Users", value: usersLoading ? "..." : usersError ? "-" : totalUsers.toString(), icon: Users, color: "text-info", bg: "bg-info-bg" },
+        { label: "Active Agents", value: usersLoading ? "..." : usersError ? "-" : activeAgents.toString(), icon: Activity, color: "text-success", bg: "bg-success-bg" },
+        { label: "System Health", value: "99.9%", icon: Server, color: "text-success", bg: "bg-success-bg" },
+        { label: "Escalated Incidents", value: ticketsLoading ? "..." : ticketsError ? "-" : escalatedIncidents.toString(), icon: ShieldAlert, color: "text-error", bg: "bg-error-bg" },
     ];
 
     return (
@@ -36,7 +36,7 @@ export function AdminDashboard() {
 
                 <button
                     onClick={() => setIsCreateManagerOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-xl shadow-sm hover:bg-brand-hover transition-colors font-medium text-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-xl shadow-button hover:opacity-90 transition-all font-semibold text-sm active:scale-95"
                 >
                     <Plus className="w-4 h-4" />
                     Add Member
@@ -53,7 +53,7 @@ export function AdminDashboard() {
                 {summaryMetrics.map((metric) => {
                     const Icon = metric.icon;
                     return (
-                        <div key={metric.label} className="bg-surface-card p-5 sm:p-6 rounded-[20px] shadow-sm border border-border flex flex-col gap-4 group hover:border-border-focus transition-colors">
+                        <div key={metric.label} className="bg-surface-card p-5 sm:p-6 rounded-card shadow-sm border border-border flex flex-col gap-4 group hover:border-brand-accent transition-colors">
                             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${metric.bg}`}>
                                 <Icon className={`w-6 h-6 ${metric.color}`} />
                             </div>
@@ -71,7 +71,7 @@ export function AdminDashboard() {
             </div>
 
             {/* System Status Section */}
-            <div className="bg-surface-card rounded-[24px] shadow-sm border border-border overflow-hidden">
+            <div className="bg-surface-card rounded-card shadow-logo border border-border overflow-hidden">
                 <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-surface-card/50">
                     <h2 className="text-lg font-bold text-text-main">System Status</h2>
                 </div>

@@ -24,8 +24,9 @@ export default function DashboardPage() {
                     <div className="flex justify-between items-center h-16">
                         {/* Logo */}
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-brand-dark rounded-xl flex items-center justify-center shadow-logo relative overflow-hidden">
+                            <div className="w-8 h-8 bg-brand rounded-xl flex items-center justify-center shadow-logo relative overflow-hidden">
                                 <Zap className="w-4 h-4 text-white" fill="currentColor" />
+                                <div className="absolute inset-0 bg-white/10 pointer-events-none" />
                             </div>
                             <span className="text-xl font-bold tracking-tight text-text-main">
                                 SyncDesk
@@ -37,7 +38,7 @@ export default function DashboardPage() {
                             {role !== "ADMIN" && (
                                 <Link
                                     to="/tickets/new"
-                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-brand-dark text-white text-sm font-semibold rounded-pill hover:opacity-90 transition-all shadow-button hover:-translate-y-0.5 active:translate-y-0"
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-brand text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-all shadow-button hover:-translate-y-0.5 active:translate-y-0"
                                 >
                                     <Plus className="w-4 h-4" />
                                     Create Incident

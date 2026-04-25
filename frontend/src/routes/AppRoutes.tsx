@@ -21,7 +21,7 @@ export default function AppRoutes() {
             <Routes>
                 <Route element={<ProtectedRoute requireAuth={false} />}>
                     <Route path="/" element={<LoginPage />} />
-                    <Route path="/sign-up" element={<RegisterPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
                 </Route>
 
                 <Route element={<ProtectedRoute requireAuth={true} />}>
