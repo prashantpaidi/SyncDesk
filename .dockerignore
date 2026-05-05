@@ -1,0 +1,27 @@
+# Git
+.git
+.gitignore
+
+# Java / Maven
+target/
+.mvn/
+mvnw
+mvnw.cmd
+.idea/
+.vscode/
+*.iml
+
+# Node / Frontend
+node_modules/
+dist/
+.env
+.env.local
+
+# Docker
+Dockerfile
+Dockerfile*
+docker-compose*.yml
+
+# OS
+.DS_Store
+Thumbs.db
