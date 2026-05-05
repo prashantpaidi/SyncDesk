@@ -65,7 +65,7 @@ public class DataSeeder implements CommandLineRunner {
         log.info("Creating default admin user...");
         User admin = User.builder()
                 .email("admin@syncdesk.com")
-                .password(passwordEncoder.encode("admin123"))
+                .password(passwordEncoder.encode("Admin@123"))
                 .name("Default Administrator")
                 .role(Role.ADMIN)
                 .build();
