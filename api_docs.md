@@ -20,9 +20,21 @@ Base Path: `/api/tickets`
 | POST   | `/`                 | Create a new ticket         | Yes           | Any                   |
 | GET    | `/`                 | List all relevant tickets   | Yes           | Any (Filtered by role)|
 | GET    | `/{id}`             | Get ticket details          | Yes           | Any                   |
-| PATCH  | `/{id}/status`      | Update ticket status        | Yes           | AGENT, MANAGER, ADMIN |
+| PATCH  | `/{id}/status`      | Update ticket status        | Yes           | See status transitions below |
 | PATCH  | `/{id}/assign/{uid}`| Assign ticket to user       | Yes           | MANAGER, ADMIN        |
 | DELETE | `/{id}`             | Delete a ticket             | Yes           | ADMIN                 |
+
+**Ticket status transitions**
+
+Changing a ticket's status is a workflow action rather than an administrative one, so `ADMIN` has no override. A `CLOSED` ticket cannot be transitioned again. Callers without the required role receive `403`.
+
+| Target status       | Allowed roles         | Allowed from            |
+|---------------------|-----------------------|-------------------------|
+| `RESOLVED`          | `AGENT`, `MANAGER`    | `OPEN`, `IN_PROGRESS`   |
+| `OPEN` (reopen)     | `AGENT`, `MANAGER`    | `RESOLVED`              |
+| `CLOSED`            | `CUSTOMER`            | `RESOLVED`              |
+| `IN_PROGRESS`       | any authenticated user| any status except `CLOSED` |
+| `REOPENED`          | any authenticated user| any status except `CLOSED` |
 
 ### 💬 Ticket Comments
 

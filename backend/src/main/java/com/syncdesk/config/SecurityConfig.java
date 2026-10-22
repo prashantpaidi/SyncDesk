@@ -4,6 +4,7 @@ import com.syncdesk.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -42,7 +43,8 @@ public class SecurityConfig {
      *
      * @param http the HttpSecurity instance to configure
      * @return the configured SecurityFilterChain enforcing CORS, disabled CSRF, stateless sessions,
-     *         permitting requests under /api/auth/**, requiring authentication for all other endpoints,
+     *         permitting requests under /api/auth/**, restricting ticket deletion to ADMIN and
+     *         user listing to MANAGER/ADMIN, requiring authentication for all other endpoints,
      *         and registering the custom authentication provider and JWT authentication filter
      * @throws Exception if an error occurs while configuring or building the security filter chain
      */
@@ -53,6 +55,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/error").permitAll()
+                        // Administrative operations are restricted at the filter chain, so the
+                        // controller is never reached for an unauthorised caller.
+                        .requestMatchers(HttpMethod.DELETE, "/api/tickets/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasAnyRole("MANAGER", "ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions
