@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-@Profile("!prod")
+@Profile("!prod & !test")
 @RequiredArgsConstructor
 @Slf4j
 public class DataSeeder implements CommandLineRunner {

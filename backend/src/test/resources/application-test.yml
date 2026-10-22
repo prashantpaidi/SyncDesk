@@ -1,0 +1,25 @@
+# Configuration for the "test" profile used by the integration test suite.
+#
+# The datasource is not configured here: it is derived from the PostgreSQL
+# Testcontainer declared in
+# com.syncdesk.support.PostgresTestContainerConfig and wired in through
+# Spring Boot's @ServiceConnection support. This means the tests never touch a
+# locally running PostgreSQL instance and never depend on developer-machine
+# environment variables.
+
+spring:
+  jpa:
+    hibernate:
+      # Every Testcontainer starts empty, so create-drop gives each test run a
+      # deterministic schema instead of relying on the production "update" mode.
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+# Dedicated, throw-away signing key so the suite does not require the JWT_SECRET
+# environment variable that production startup depends on.
+jwt:
+  secret: "vCcZ5tRzIA81cTYQ3oEjPy/oP9S2WelYsxg3ZSLPPHs="
+  expiration: 3600000

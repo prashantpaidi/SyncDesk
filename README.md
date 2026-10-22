@@ -88,6 +88,37 @@ SyncDesk/
    npm run dev
    ```
 
+## 🧪 Testing
+
+The backend test suite consists of integration tests that run against a **real PostgreSQL database** started by [Testcontainers](https://testcontainers.com/). Very little is stubbed: each test drives the real Spring Security filter chain, controllers, services and repositories, and verifies the resulting state and queries against the real PostgreSQL database.
+
+### Prerequisites
+
+- **Docker must be running.** Testcontainers pulls, starts and removes a disposable `postgres:16-alpine` container automatically.
+- No local PostgreSQL is required, and no environment variables need to be set — the `test` profile (`backend/src/test/resources/application-test.yml`) provides the configuration, including a throw-away JWT signing key.
+
+### Commands
+
+```bash
+cd backend
+
+# Run the test suite
+./mvnw test
+
+# Full verification: tests + coverage report
+./mvnw verify
+```
+
+### Coverage
+
+JaCoCo runs as part of the build. Both commands above produce an HTML report at:
+
+```text
+backend/target/site/jacoco/index.html
+```
+
+Machine-readable results are written to `backend/target/site/jacoco/jacoco.csv`. Coverage is currently measured but not enforced — the baseline is **70.2% line / 50.0% branch** and future PRs should build on it.
+
 ## 📖 Additional Documentation
 
 - [Architecture Overview](architecture.md)
