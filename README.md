@@ -90,7 +90,7 @@ SyncDesk/
 
 ## 🧪 Testing
 
-The backend test suite consists of integration tests that run against a **real PostgreSQL database** started by [Testcontainers](https://testcontainers.com/). Very little is stubbed: each test drives the real Spring Security filter chain, controllers, services and repositories, and asserts on the SQL that actually reaches the database.
+The backend test suite consists of integration tests that run against a **real PostgreSQL database** started by [Testcontainers](https://testcontainers.com/). Very little is stubbed: each test drives the real Spring Security filter chain, controllers, services and repositories, and verifies the resulting state and queries against the real PostgreSQL database.
 
 ### Prerequisites
 
@@ -117,7 +117,7 @@ JaCoCo runs as part of the build. Both commands above produce an HTML report at:
 backend/target/site/jacoco/index.html
 ```
 
-Machine-readable results are written to `backend/target/site/jacoco/jacoco.csv`. Coverage is currently measured but not enforced — the baseline is **70.2% line / 48.6% branch** and future PRs should build on it.
+Machine-readable results are written to `backend/target/site/jacoco/jacoco.csv`. Coverage is currently measured but not enforced — the baseline is **70.2% line / 50.0% branch** and future PRs should build on it.
 
 ## 📖 Additional Documentation
 
