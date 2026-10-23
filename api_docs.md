@@ -43,6 +43,20 @@ Changing a ticket's status is a workflow action rather than an administrative on
 | POST   | `/{id}/comments`    | Add comment to ticket       | Yes           |
 | GET    | `/{id}/comments`    | Get comments for a ticket   | Yes           |
 
+## 📊 Dashboard
+
+Base Path: `/api/dashboard`
+
+| Method | Endpoint   | Description              | Auth Required | Roles                  |
+|--------|------------|--------------------------|---------------|------------------------|
+| GET    | `/metrics` | Aggregate ticket metrics | Yes           | AGENT, MANAGER, ADMIN  |
+
+Returns global aggregate counts: total tickets, count per status, count per priority and the
+unassigned count. The payload is identical for every authorised caller, so it is served
+cache-aside from Redis under a single shared key (`dashboardMetrics::global`, 60 s TTL) and
+evicted whenever a ticket is created, reassigned, status-changed or deleted. Customers receive
+`403`; anonymous callers receive `401`.
+
 ## 👤 User Management
 
 Base Path: `/api/users`

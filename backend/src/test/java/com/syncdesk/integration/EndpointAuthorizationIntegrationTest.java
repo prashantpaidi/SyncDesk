@@ -17,16 +17,18 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Endpoint level authorization tests.
  *
- * <p>These cover the two administrative endpoints that the application
- * documents as restricted: deleting a ticket (ADMIN) and listing users
- * (MANAGER/ADMIN). Every case asserts the HTTP outcome <em>and</em> the effect
- * on PostgreSQL or on the response payload, so a regression that returns the
- * wrong status while still leaking data cannot pass.
+ * <p>These cover the administrative endpoints the application documents as
+ * restricted: deleting a ticket (ADMIN), assigning a ticket (MANAGER/ADMIN),
+ * listing users (MANAGER/ADMIN) and the dashboard metrics endpoint
+ * (AGENT/MANAGER/ADMIN). Every case asserts the HTTP outcome <em>and</em> the
+ * effect on PostgreSQL or on the response payload, so a regression that returns
+ * the wrong status while still leaking data cannot pass.
  */
 class EndpointAuthorizationIntegrationTest extends AbstractIntegrationTest {
 
@@ -99,6 +101,77 @@ class EndpointAuthorizationIntegrationTest extends AbstractIntegrationTest {
             assertThat(bodyOf(result))
                     .doesNotContain(actor.getEmail(), other.getEmail(), actor.getName(), other.getName());
         }
+    }
+
+    @Test
+    void assignTicket_whenUnauthenticated_isRejectedWith401() throws Exception {
+        Ticket ticket = tickets.openTicketFor(users.create(Role.CUSTOMER));
+
+        mockMvc.perform(patch("/api/tickets/{id}/assign/{userId}", ticket.getId(), 1L))
+                .andExpect(status().isUnauthorized());
+
+        assertThat(assigneeInDatabase(ticket.getId())).isNull();
+    }
+
+    @ParameterizedTest(name = "{0} assigning a ticket -> HTTP {1}")
+    @CsvSource({
+            "ADMIN,    200",
+            "MANAGER,  200",
+            "AGENT,    403",
+            "CUSTOMER, 403"
+    })
+    void assignTicket_isRestrictedToManagersAndAdmins(Role actorRole, int expectedStatus) throws Exception {
+        User actor = users.create(actorRole);
+        Ticket ticket = tickets.openTicketFor(users.create(Role.CUSTOMER));
+        String token = auth.login(actor.getEmail(), TestUserFactory.DEFAULT_PASSWORD);
+
+        mockMvc.perform(patch("/api/tickets/{id}/assign/{userId}", ticket.getId(), actor.getId())
+                        .header(HttpHeaders.AUTHORIZATION, auth.bearer(token)))
+                .andExpect(status().is(expectedStatus));
+
+        Long assignee = assigneeInDatabase(ticket.getId());
+        if (expectedStatus == 200) {
+            assertThat(assignee).isEqualTo(actor.getId());
+        } else {
+            assertThat(assignee).isNull();
+        }
+    }
+
+    @Test
+    void dashboardMetrics_whenUnauthenticated_isRejectedWith401() throws Exception {
+        mockMvc.perform(get("/api/dashboard/metrics"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @ParameterizedTest(name = "GET /api/dashboard/metrics as {0} -> HTTP {1}")
+    @CsvSource({
+            "ADMIN,    200",
+            "MANAGER,  200",
+            "AGENT,    200",
+            "CUSTOMER, 403"
+    })
+    void dashboardMetrics_isRestrictedToStaff(Role actorRole, int expectedStatus) throws Exception {
+        User actor = users.create(actorRole);
+        tickets.openTicketFor(users.create(Role.CUSTOMER));
+        String token = auth.login(actor.getEmail(), TestUserFactory.DEFAULT_PASSWORD);
+
+        MvcResult result = mockMvc.perform(get("/api/dashboard/metrics")
+                        .header(HttpHeaders.AUTHORIZATION, auth.bearer(token)))
+                .andExpect(status().is(expectedStatus))
+                .andReturn();
+
+        if (expectedStatus == 200) {
+            assertThat(jsonOf(result).path("totalTickets").asLong()).isEqualTo(1);
+        } else {
+            assertThat(bodyOf(result)).doesNotContain("totalTickets");
+        }
+    }
+
+    private Long assigneeInDatabase(Long ticketId) {
+        // Flush the pending UPDATE so the JDBC read observes what was written.
+        entityManager.flush();
+        return jdbcTemplate.queryForObject(
+                "SELECT assigned_to_id FROM tickets WHERE id = ?", Long.class, ticketId);
     }
 
     private List<String> userEmails(MvcResult result) {
