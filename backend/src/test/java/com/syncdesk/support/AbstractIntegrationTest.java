@@ -76,11 +76,18 @@ public abstract class AbstractIntegrationTest {
     }
 
     /**
+     * Reads a completed response body as text, for assertions about what a
+     * response does (or does not) leak.
+     */
+    protected String bodyOf(MvcResult result) {
+        return new String(result.getResponse().getContentAsByteArray(), StandardCharsets.UTF_8);
+    }
+
+    /**
      * Reads a completed response body as JSON, keeping numeric assertions free of
      * the int/long mismatch that {@code jsonPath(...).value(...)} can introduce.
      */
     protected JsonNode jsonOf(MvcResult result) {
-        String body = new String(result.getResponse().getContentAsByteArray(), StandardCharsets.UTF_8);
-        return jsonMapper.readTree(body);
+        return jsonMapper.readTree(bodyOf(result));
     }
 }
