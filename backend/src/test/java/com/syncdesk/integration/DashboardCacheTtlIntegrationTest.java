@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +28,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * expiry can be observed without a slow test. The underlying data is changed
  * through JDBC directly — bypassing the service layer, hence without triggering
  * an eviction — so the only way the change becomes visible is by TTL expiry.
+ *
+ * <p>Like the other dashboard cache test, this class does not run inside a
+ * rolled-back transaction, because the transaction-aware cache manager only
+ * applies writes once the transaction commits.
  */
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 @TestPropertySource(properties = "syncdesk.cache.dashboard-ttl=2s")
 @Import(RedisTestContainerConfig.class)
 class DashboardCacheTtlIntegrationTest extends AbstractIntegrationTest {
@@ -37,7 +44,9 @@ class DashboardCacheTtlIntegrationTest extends AbstractIntegrationTest {
     private StringRedisTemplate stringRedisTemplate;
 
     @BeforeEach
-    void clearDashboardCache() {
+    void resetState() {
+        ticketCommentRepository.deleteAllInBatch();
+        ticketRepository.deleteAllInBatch();
         stringRedisTemplate.delete(GLOBAL_KEY);
         awaitCache(false);
     }

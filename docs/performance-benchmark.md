@@ -91,10 +91,12 @@ Database work avoided per cache hit: **3 aggregate queries** over the 100k-row
 ## Cache behavior
 
 - **Cache name / key:** `dashboardMetrics` / Redis key `dashboardMetrics::global`.
+- **Access:** staff only (AGENT / MANAGER / ADMIN); customers get `403`.
 - **TTL:** 60 s (`syncdesk.cache.dashboard-ttl`), a backstop only.
 - **Invalidation:** ticket create / status change / assign / delete evict the
-  entry eagerly (`@CacheEvict`); comments do not (they do not affect ticket
-  aggregates).
+  entry (`@CacheEvict`); comments do not (they do not affect ticket aggregates).
+  The cache manager is **transaction-aware**, so the eviction is applied only
+  after the mutation's transaction commits.
 - **Redis keyspace during the cached runs:** 103,081 hits vs 35 misses
   (**99.97% hit ratio**) — the misses are the initial cold fills after each
   `FLUSHALL` and TTL expiries.
@@ -135,7 +137,9 @@ above, which is not saturated (load average 1.1–1.8 for the cached runs).
 - The cached runs were not saturated (load average 1.1–1.8).
 - Results are the median of three runs each; run-to-run variance is low but
   non-zero (see the per-run tables).
-- Cache invalidation relies on `@CacheEvict` firing when the mutation returns,
-  just before the transaction commits. A narrow race exists where a concurrent
-  reader could repopulate the entry with pre-commit data; the 60 s TTL bounds how
-  long that could persist.
+- Numbers were measured before two follow-up changes that do not touch the
+  measured read path: restricting the endpoint to staff roles (the request was
+  already authenticated, only one filter-chain matcher changed) and making the
+  cache manager transaction-aware (affects when a miss's write and a mutation's
+  eviction are applied, not the warm-cache `GET`). Both are within run-to-run
+  variance and were not re-measured.

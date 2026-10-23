@@ -1,14 +1,17 @@
 package com.syncdesk.integration;
 
 import com.syncdesk.config.CacheNames;
+import com.syncdesk.dto.ticket.request.CreateTicketRequest;
 import com.syncdesk.entity.Ticket;
 import com.syncdesk.entity.User;
 import com.syncdesk.enums.Role;
 import com.syncdesk.enums.TicketPriority;
 import com.syncdesk.enums.TicketStatus;
+import com.syncdesk.service.TicketService;
 import com.syncdesk.support.AbstractIntegrationTest;
 import com.syncdesk.support.RedisTestContainerConfig;
 import com.syncdesk.support.TestUserFactory;
+import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +21,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.JsonNode;
 
 import java.util.Map;
@@ -37,7 +44,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * implementation-independent signals are used: Hibernate's query-execution count
  * (proving a cache hit skips the aggregate queries) and the presence of the cache
  * entry in Redis.
+ *
+ * <p>Unlike the rest of the suite this class does <strong>not</strong> run inside
+ * a rolled-back transaction: the cache manager is transaction-aware, so cache
+ * writes and evictions are only applied once the surrounding transaction
+ * <em>commits</em>. A rollback would therefore discard them and the caching
+ * behaviour could not be observed at all. State is reset in {@link #resetState()}
+ * instead of by rollback.
  */
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Import(RedisTestContainerConfig.class)
 class DashboardMetricsCacheIntegrationTest extends AbstractIntegrationTest {
 
@@ -46,8 +61,19 @@ class DashboardMetricsCacheIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
+
+    @Autowired
+    private TicketService ticketService;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
     @BeforeEach
-    void clearDashboardCache() {
+    void resetState() {
+        ticketCommentRepository.deleteAllInBatch();
+        ticketRepository.deleteAllInBatch();
         stringRedisTemplate.delete(GLOBAL_KEY);
         awaitCache(false);
     }
@@ -105,11 +131,13 @@ class DashboardMetricsCacheIntegrationTest extends AbstractIntegrationTest {
     @Test
     void creatingTicketEvictsDashboardCache() throws Exception {
         User customer = users.create(Role.CUSTOMER);
-        String token = auth.login(customer.getEmail(), TestUserFactory.DEFAULT_PASSWORD);
-        warmCache(token);
+        User agent = users.create(Role.AGENT);
+        String staffToken = auth.login(agent.getEmail(), TestUserFactory.DEFAULT_PASSWORD);
+        String customerToken = auth.login(customer.getEmail(), TestUserFactory.DEFAULT_PASSWORD);
+        warmCache(staffToken);
 
         mockMvc.perform(post("/api/tickets")
-                        .header(HttpHeaders.AUTHORIZATION, auth.bearer(token))
+                        .header(HttpHeaders.AUTHORIZATION, auth.bearer(customerToken))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(Map.of(
                                 "title", "New ticket", "description", "desc", "priority", "LOW"))))
@@ -138,12 +166,12 @@ class DashboardMetricsCacheIntegrationTest extends AbstractIntegrationTest {
     @Test
     void assigningTicketEvictsDashboardCache() throws Exception {
         User customer = users.create(Role.CUSTOMER);
-        User agent = users.create(Role.AGENT);
+        User manager = users.create(Role.MANAGER);
         Ticket ticket = tickets.openTicketFor(customer);
-        String token = auth.login(agent.getEmail(), TestUserFactory.DEFAULT_PASSWORD);
+        String token = auth.login(manager.getEmail(), TestUserFactory.DEFAULT_PASSWORD);
         warmCache(token);
 
-        mockMvc.perform(patch("/api/tickets/{id}/assign/{userId}", ticket.getId(), agent.getId())
+        mockMvc.perform(patch("/api/tickets/{id}/assign/{userId}", ticket.getId(), manager.getId())
                         .header(HttpHeaders.AUTHORIZATION, auth.bearer(token)))
                 .andExpect(status().isOk());
 
@@ -185,9 +213,9 @@ class DashboardMetricsCacheIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void afterMutationFreshDataIsReturned() throws Exception {
-        User customer = users.create(Role.CUSTOMER);
-        tickets.openTicketFor(customer);
-        String token = auth.login(customer.getEmail(), TestUserFactory.DEFAULT_PASSWORD);
+        User agent = users.create(Role.AGENT);
+        tickets.openTicketFor(agent);
+        String token = auth.login(agent.getEmail(), TestUserFactory.DEFAULT_PASSWORD);
 
         assertThat(fetchMetrics(token).path("totalTickets").asLong()).isEqualTo(1);
         awaitCache(true);
@@ -203,6 +231,37 @@ class DashboardMetricsCacheIntegrationTest extends AbstractIntegrationTest {
         // Cache was evicted by the create, so the next read reflects the new row.
         assertThat(fetchMetrics(token).path("totalTickets").asLong()).isEqualTo(2);
         assertThat(fetchMetrics(token).path("ticketsByStatus").path("OPEN").asLong()).isEqualTo(2);
+    }
+
+    /**
+     * Regression test for transaction-aware eviction: a mutation whose
+     * transaction rolls back must not evict the cache. With a non-transaction-aware
+     * manager the eviction would fire regardless and could leave the cache empty
+     * (or, worse, repopulated from pre-commit state) for a mutation that never
+     * happened.
+     */
+    @Test
+    void rolledBackMutationDoesNotEvictCache() throws Exception {
+        User customer = users.create(Role.CUSTOMER);
+        User agent = users.create(Role.AGENT);
+        String token = auth.login(agent.getEmail(), TestUserFactory.DEFAULT_PASSWORD);
+        warmCache(token);
+
+        long ticketsBefore = ticketRepository.count();
+
+        CreateTicketRequest request = new CreateTicketRequest();
+        request.setTitle("rollback");
+        request.setDescription("must not persist");
+
+        new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+            ticketService.createTicket(request, customer);
+            status.setRollbackOnly();
+        });
+
+        assertThat(ticketRepository.count()).isEqualTo(ticketsBefore);
+        // The transaction rolled back, so its eviction was discarded: the snapshot
+        // cached before the mutation is still valid and must still be present.
+        assertThat(cached()).isTrue();
     }
 
     private void warmCache(String token) throws Exception {
@@ -244,6 +303,6 @@ class DashboardMetricsCacheIntegrationTest extends AbstractIntegrationTest {
     }
 
     private Statistics statistics() {
-        return entityManager.getEntityManagerFactory().unwrap(SessionFactory.class).getStatistics();
+        return entityManagerFactory.unwrap(SessionFactory.class).getStatistics();
     }
 }

@@ -43,11 +43,13 @@ public class CacheConfig implements CachingConfigurer {
     /**
      * Redis-backed {@link RedisCacheManager} with a bounded TTL.
      *
-     * <p>The returned manager is the application's {@code CacheManager}; the TTL
-     * is a backstop, not the primary invalidation mechanism: ticket mutations
-     * evict the cache eagerly (see {@code TicketService}), and the TTL only bounds
-     * how long a stale snapshot could survive if an eviction were missed (e.g.
-     * during a Redis outage).
+     * <p>{@code transactionAware()} defers cache writes and evictions until the
+     * surrounding transaction commits. Without it, {@code @CacheEvict} fires when
+     * the mutation method returns — just before the commit — so a concurrent
+     * reader could repopulate the entry with pre-commit data and leave it stale
+     * for up to the TTL. With it, the invariant is: commit succeeds → eviction →
+     * the next reader rebuilds from committed state. The TTL remains a backstop
+     * for anything the eager eviction misses (e.g. a Redis outage).
      */
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory,
@@ -61,6 +63,7 @@ public class CacheConfig implements CachingConfigurer {
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaults)
+                .transactionAware()
                 .build();
     }
 }

@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Read-only dashboard endpoints.
  *
- * <p>Access is covered by the existing {@code anyRequest().authenticated()} rule
- * in {@code SecurityConfig}: the payload is non-sensitive aggregate counts that
- * are identical for every authenticated caller.
+ * <p>Staff-only: {@code SecurityConfig} restricts {@code /api/dashboard/**} to
+ * AGENT, MANAGER and ADMIN, so customers (and anonymous callers) are rejected
+ * before the controller is reached.
+ *
+ * <p>The payload is aggregate counts only and is identical for every authorised
+ * caller, which is why the cached response can live under a single shared key.
  */
 @RestController
 @RequestMapping("/api/dashboard")

@@ -130,11 +130,13 @@ aggregate queries. Because it is read far more often than ticket data changes, i
 response is served **cache-aside from Redis**.
 
 - **Cached data:** the single `GET /api/dashboard/metrics` response. It contains
-  only aggregate counts, so it is identical for every authenticated caller and is
-  stored under one shared entry (`dashboardMetrics::global`).
+  only aggregate counts, so it is identical for every authorized caller and is
+  stored under one shared entry (`dashboardMetrics::global`). The endpoint is
+  **staff-only** (AGENT / MANAGER / ADMIN); customers receive `403`.
 - **TTL:** 60 seconds (`syncdesk.cache.dashboard-ttl`). Ticket mutations evict the
-  entry eagerly, so the TTL is only a backstop that bounds staleness if an eviction
-  is missed.
+  entry, so the TTL is only a backstop that bounds staleness if an eviction is
+  missed. The cache manager is **transaction-aware**: evictions are applied after
+  the mutation commits, never before.
 - **Invalidation:** creating, re-assigning, status-changing or deleting a ticket
   evicts the entry (`@CacheEvict` on `TicketService`). Comment changes do not,
   because they do not affect ticket aggregates.
