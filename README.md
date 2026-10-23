@@ -1,5 +1,7 @@
 # SyncDesk
 
+[![CI](https://github.com/prashantpaidi/SyncDesk/actions/workflows/ci.yml/badge.svg)](https://github.com/prashantpaidi/SyncDesk/actions/workflows/ci.yml)
+
 SyncDesk is a robust, full-stack helpdesk and ticket management system. It features a high-performance **Java Spring Boot 4** backend and a modern, responsive **React 19** frontend.
 
 ## 🚀 Key Features
@@ -118,6 +120,15 @@ backend/target/site/jacoco/index.html
 ```
 
 Machine-readable results are written to `backend/target/site/jacoco/jacoco.csv`. Coverage is currently measured but not enforced — the baseline is **70.2% line / 50.0% branch** and future PRs should build on it.
+
+## ✅ Continuous Integration
+
+[CI](.github/workflows/ci.yml) runs on every pull request and on pushes to `main`. The **backend** and **frontend** jobs run in parallel:
+
+- **Backend** — sets up Java 21, restores the Maven cache, and runs `./mvnw -B verify` from `backend/`. This is the same command developers run locally: it compiles, runs the full test suite and the integration tests, and generates the JaCoCo report. The integration tests start a `postgres:16-alpine` database through Testcontainers on the runner, so no external database or production secrets are required. The JaCoCo HTML report is uploaded as the `backend-jacoco-report` artifact.
+- **Frontend** — sets up Node 24, restores the npm cache, installs dependencies with `npm ci`, runs `npm run lint`, and produces the production build with `npm run build`.
+
+Concurrency is configured so a newer push to the same branch or PR cancels any in-progress run for that ref.
 
 ## 📖 Additional Documentation
 

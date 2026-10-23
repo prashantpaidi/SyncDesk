@@ -1,0 +1,84 @@
+name: CI
+
+# Verify every pull request and every push to main. Nothing else: no scheduled
+# runs, no deployment, no publishing.
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+# Cancel superseded runs for the same branch/PR so only the newest commit is
+# verified. Unrelated branches and PRs get their own group and are untouched.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# The workflow only reads the repository. No write scopes are granted.
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      # The integration suite talks to PostgreSQL through Testcontainers, which
+      # needs a working Docker daemon. GitHub-hosted Ubuntu runners already ship
+      # one and the runner user can reach the socket, so no extra configuration
+      # (and no weakening of Docker permissions) is required.
+      - name: Verify Docker is available
+        run: docker info
+
+      # Same command developers run locally: tests + integration tests +
+      # JaCoCo report. Do not swap Testcontainers for a service container.
+      - name: Run backend verification
+        working-directory: backend
+        run: ./mvnw -B verify
+
+      - name: Upload JaCoCo report
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-jacoco-report
+          path: backend/target/site/jacoco/
+          if-no-files-found: error
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      # tsc -b && vite build — the production build must succeed.
+      - name: Build
+        working-directory: frontend
+        run: npm run build

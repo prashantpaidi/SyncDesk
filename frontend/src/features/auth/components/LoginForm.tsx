@@ -6,7 +6,7 @@ import { useLogin, type LoginCredentials } from "../hooks/useLogin";
 import { Zap, Mail, Lock, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { InputField } from "./InputField";
 import { Link, useNavigate } from "react-router";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authContext";
 
 const loginSchema = z.object({
     email: z.string().email("Please enter a valid email address"),

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useGetTicket } from "../hooks/useGetTicket";
 import { format } from "date-fns";
-import { useAuth } from "../../auth/context/AuthContext";
+import { useAuth } from "../../auth/context/authContext";
 import { useGetUsers } from "../../auth/hooks/useGetUsers";
 import { useAssignTicket } from "../hooks/useAssignTicket";
 import { useUpdateTicketStatus } from "../hooks/useUpdateTicketStatus";
@@ -23,12 +23,15 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
     const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateTicketStatus();
 
     const [selectedAssignee, setSelectedAssignee] = useState<number | null>(null);
+    const [syncedTicket, setSyncedTicket] = useState(ticket);
 
-    useEffect(() => {
-        if (ticket) {
-            setSelectedAssignee(ticket.assignedToId);
-        }
-    }, [ticket]);
+    // Keep the dropdown in sync with the loaded ticket's assignee. Adjusting
+    // state during render (React's "adjusting state when a prop changes"
+    // pattern) avoids the extra render pass of a setState inside an effect.
+    if (syncedTicket !== ticket) {
+        setSyncedTicket(ticket);
+        setSelectedAssignee(ticket?.assignedToId ?? null);
+    }
 
     const handleAssign = () => {
         if (selectedAssignee !== null && selectedAssignee !== ticket?.assignedToId) {

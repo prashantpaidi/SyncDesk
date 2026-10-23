@@ -1,4 +1,4 @@
-import { Plus, LayoutDashboard, TicketIcon, Clock, CheckCircle, MoreHorizontal } from "lucide-react";
+import { Plus, LayoutDashboard, TicketIcon, Clock, CheckCircle } from "lucide-react";
 import { Link } from "react-router";
 import { useGetTickets } from "../../features/tickets/hooks/useGetTickets";
 import { TicketActionsMenu } from "../../features/tickets/components/TicketActionsMenu";
