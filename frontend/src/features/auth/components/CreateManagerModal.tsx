@@ -50,7 +50,7 @@ export function CreateManagerModal({ isOpen, onClose }: Props) {
                         setSuccessMessage('');
                     }, 2000);
                 },
-                onError: (err: any) => {
+                onError: (err) => {
                     setError(err.message || 'Failed to create manager account');
                 }
             }

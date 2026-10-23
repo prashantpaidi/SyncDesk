@@ -6,7 +6,7 @@ import { useRegister, type RegisterCredentials } from "../hooks/useRegister";
 import { Zap, Mail, Lock, User, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { InputField } from "./InputField";
 import { Link, useNavigate } from "react-router";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authContext";
 
 const registerSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -40,8 +40,12 @@ export function RegisterForm() {
     const navigate = useNavigate();
 
     const onSubmit = (data: RegisterFormValues) => {
-        const { confirmPassword, ...apiData } = data;
-        registerMutation.mutate(apiData as RegisterCredentials, {
+        const apiData: RegisterCredentials = {
+            name: data.name,
+            email: data.email,
+            password: data.password,
+        };
+        registerMutation.mutate(apiData, {
             onSuccess: (responseData) => {
                 if (responseData.token && responseData.id !== undefined && responseData.name) {
                     login(responseData.token, responseData.role, responseData.id, responseData.name);

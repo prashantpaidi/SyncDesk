@@ -60,7 +60,7 @@ export function InputField({
             </div>
             <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                    {React.cloneElement(icon as React.ReactElement<any>, {
+                    {React.cloneElement(icon as React.ReactElement<{ className?: string }>, {
                         className: `w-4 h-4 transition-colors duration-200 ${isFocused ? "text-brand-accent" : "text-text-subtle"}`
                     })}
                 </span>

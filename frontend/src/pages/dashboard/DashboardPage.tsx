@@ -1,4 +1,4 @@
-import { useAuth } from "../../features/auth/context/AuthContext";
+import { useAuth } from "../../features/auth/context/authContext";
 import { LogOut, Plus, Zap } from "lucide-react";
 import { Link } from "react-router";
 import { CustomerDashboard } from "./CustomerDashboard";
