@@ -1,0 +1,12 @@
+# k6 summary — BASELINE (cache disabled), 15 req/s — representative (median) run 2 of 3
+
+    CUSTOM
+    dashboard_metrics_duration.....: avg=156.29ms min=80.79ms med=123.11ms max=655.43ms p(50)=123.11ms p(90)=255.23ms p(95)=335.3ms  p(99)=551.57ms
+
+    HTTP
+    http_req_duration..............: avg=156.25ms min=80.79ms med=123.11ms max=655.43ms p(50)=123.11ms p(90)=254.98ms p(95)=335.04ms p(99)=551.4ms 
+      { expected_response:true }...: avg=156.25ms min=80.79ms med=123.11ms max=655.43ms p(50)=123.11ms p(90)=254.98ms p(95)=335.04ms p(99)=551.4ms 
+    http_req_failed................: 0.00%  0 out of 895
+    http_reqs......................: 895    14.856953/s
+
+load average: 4.70 (1-min, max during run; machine has 2 vCPU)

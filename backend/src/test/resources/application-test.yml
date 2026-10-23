@@ -17,6 +17,9 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        # Enables Hibernate statistics so tests can observe how many queries a
+        # request actually executed (used to prove cache hits skip the database).
+        generate_statistics: true
 
 # Dedicated, throw-away signing key so the suite does not require the JWT_SECRET
 # environment variable that production startup depends on.

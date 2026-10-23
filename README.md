@@ -18,7 +18,7 @@ SyncDesk is a robust, full-stack helpdesk and ticket management system. It featu
 ### Backend
 - **Core:** Java 21, Spring Boot 4.0.2
 - **Security:** Spring Security, JWT (JJWT)
-- **Data:** Spring Data JPA, PostgreSQL
+- **Data:** Spring Data JPA, PostgreSQL, Redis (read-through cache for dashboard metrics)
 - **Utilities:** Lombok, Jakarta Validation
 - **Build:** Maven
 
@@ -36,7 +36,7 @@ SyncDesk is a robust, full-stack helpdesk and ticket management system. It featu
 SyncDesk/
 ├── backend/                # Spring Boot Application
 │   ├── src/main/java/com/syncdesk/
-│   │   ├── config/         # Security & App Configuration
+│   │   ├── config/         # Security, caching & app configuration
 │   │   ├── controller/     # REST API Endpoints
 │   │   ├── dto/            # Data Transfer Objects
 │   │   ├── entity/         # JPA Entities (User, Ticket, Comment)
@@ -51,7 +51,8 @@ SyncDesk/
 │   │   ├── components/     # High-level UI components
 │   │   └── hooks/          # Shared custom hooks
 │   └── index.html
-└── docs/                   # Extended Documentation (coming soon)
+├── performance/            # k6 benchmark for the cached dashboard endpoint
+└── docs/                   # Extended Documentation (benchmarks, ...)
 ```
 
 ## 🚥 Getting Started
@@ -96,7 +97,7 @@ The backend test suite consists of integration tests that run against a **real P
 
 ### Prerequisites
 
-- **Docker must be running.** Testcontainers pulls, starts and removes a disposable `postgres:16-alpine` container automatically.
+- **Docker must be running.** Testcontainers pulls, starts and removes disposable `postgres:16-alpine` and `redis:7-alpine` containers automatically. Redis is only started by the dashboard-cache tests, which use it for real (no mocks).
 - No local PostgreSQL is required, and no environment variables need to be set — the `test` profile (`backend/src/test/resources/application-test.yml`) provides the configuration, including a throw-away JWT signing key.
 
 ### Commands
@@ -120,6 +121,33 @@ backend/target/site/jacoco/index.html
 ```
 
 Machine-readable results are written to `backend/target/site/jacoco/jacoco.csv`. Coverage is currently measured but not enforced — the baseline is **70.2% line / 50.0% branch** and future PRs should build on it.
+
+## ⚡ Caching & Performance
+
+The dashboard metrics endpoint (`GET /api/dashboard/metrics`, which returns ticket
+totals grouped by status and priority plus the unassigned count) runs three
+aggregate queries. Because it is read far more often than ticket data changes, its
+response is served **cache-aside from Redis**.
+
+- **Cached data:** the single `GET /api/dashboard/metrics` response. It contains
+  only aggregate counts, so it is identical for every authenticated caller and is
+  stored under one shared entry (`dashboardMetrics::global`).
+- **TTL:** 60 seconds (`syncdesk.cache.dashboard-ttl`). Ticket mutations evict the
+  entry eagerly, so the TTL is only a backstop that bounds staleness if an eviction
+  is missed.
+- **Invalidation:** creating, re-assigning, status-changing or deleting a ticket
+  evicts the entry (`@CacheEvict` on `TicketService`). Comment changes do not,
+  because they do not affect ticket aggregates.
+- **Redis required for local use:** start it with `docker compose -f docker-compose.db.yml up -d`
+  (the compose file ships a `redis:7-alpine` service). Connection details come from
+  `REDIS_HOST` / `REDIS_PORT` (defaults `localhost:6379`). Caching can be disabled
+  entirely with `CACHE_ENABLED=false`.
+- **Redis is not a hard dependency:** if Redis is unavailable the request is served
+  from PostgreSQL (see `LoggingCacheErrorHandler`).
+
+The reproducible before/after k6 benchmark, its methodology and the measured
+results live in [`performance/README.md`](performance/README.md) and
+[`docs/performance-benchmark.md`](docs/performance-benchmark.md).
 
 ## ✅ Continuous Integration
 
