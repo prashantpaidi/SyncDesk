@@ -1,0 +1,10 @@
+# k6 summary — REDIS COLD (cache flushed, single request) — representative run 2 of 3
+
+    CUSTOM
+    dashboard_metrics_duration.....: avg=104.76ms min=104.76ms med=104.76ms max=104.76ms p(50)=104.76ms p(90)=104.76ms p(95)=104.76ms p(99)=104.76ms
+
+    HTTP
+    http_req_duration..............: avg=116.77ms min=104.76ms med=116.77ms max=128.77ms p(50)=116.77ms p(90)=126.37ms p(95)=127.57ms p(99)=128.53ms
+      { expected_response:true }...: avg=116.77ms min=104.76ms med=116.77ms max=128.77ms p(50)=116.77ms p(90)=126.37ms p(95)=127.57ms p(99)=128.53ms
+    http_req_failed................: 0.00%  0 out of 2
+    http_reqs......................: 2      8.368359/s

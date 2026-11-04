@@ -1,5 +1,6 @@
 package com.syncdesk.service;
 
+import com.syncdesk.config.CacheNames;
 import com.syncdesk.dto.ticket.request.CreateTicketRequest;
 import com.syncdesk.dto.ticket.response.TicketResponse;
 import com.syncdesk.entity.Ticket;
@@ -13,6 +14,7 @@ import com.syncdesk.entity.TicketComment;
 import com.syncdesk.enums.Role;
 import com.syncdesk.dto.ticket.request.CommentRequest;
 import com.syncdesk.dto.ticket.response.CommentResponse;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.syncdesk.repository.TicketCommentRepository;
@@ -29,6 +31,7 @@ public class TicketService {
     private final TicketCommentRepository ticketCommentRepository;
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.DASHBOARD_METRICS, key = CacheNames.DASHBOARD_METRICS_KEY)
     public TicketResponse createTicket(CreateTicketRequest request, User currentUser) {
         Ticket ticket = Ticket.builder()
                 .title(request.getTitle())
@@ -62,6 +65,7 @@ public class TicketService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.DASHBOARD_METRICS, key = CacheNames.DASHBOARD_METRICS_KEY)
     public TicketResponse updateTicketStatus(Long id, TicketStatus newStatus, User currentUser) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + id));
@@ -102,6 +106,7 @@ public class TicketService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.DASHBOARD_METRICS, key = CacheNames.DASHBOARD_METRICS_KEY)
     public TicketResponse assignTicket(Long ticketId, Long userId) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
@@ -115,6 +120,7 @@ public class TicketService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.DASHBOARD_METRICS, key = CacheNames.DASHBOARD_METRICS_KEY)
     public void deleteTicket(Long id) {
         if (!ticketRepository.existsById(id)) {
             throw new ResourceNotFoundException("Ticket not found with id: " + id);

@@ -1,0 +1,12 @@
+# k6 summary — REDIS WARM (cache enabled), 15 req/s — representative (median) run 2 of 3
+
+    CUSTOM
+    dashboard_metrics_duration.....: avg=6.62ms min=3.87ms med=5.38ms max=203.19ms p(50)=5.38ms p(90)=8.2ms  p(95)=9.56ms p(99)=20.42ms
+
+    HTTP
+    http_req_duration..............: avg=6.76ms min=3.87ms med=5.38ms max=203.19ms p(50)=5.38ms p(90)=8.21ms p(95)=9.59ms p(99)=21.51ms
+      { expected_response:true }...: avg=6.76ms min=3.87ms med=5.38ms max=203.19ms p(50)=5.38ms p(90)=8.21ms p(95)=9.59ms p(99)=21.51ms
+    http_req_failed................: 0.00%  0 out of 902
+    http_reqs......................: 902    14.99149/s
+
+load average: 1.08 (1-min, max during run; machine has 2 vCPU)

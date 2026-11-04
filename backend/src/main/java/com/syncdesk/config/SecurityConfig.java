@@ -44,7 +44,8 @@ public class SecurityConfig {
      * @param http the HttpSecurity instance to configure
      * @return the configured SecurityFilterChain enforcing CORS, disabled CSRF, stateless sessions,
      *         permitting requests under /api/auth/**, restricting ticket deletion to ADMIN and
-     *         user listing to MANAGER/ADMIN, requiring authentication for all other endpoints,
+     *         ticket assignment to MANAGER/ADMIN, restricting user listing and the dashboard
+     *         metrics endpoint to staff roles, requiring authentication for all other endpoints,
      *         and registering the custom authentication provider and JWT authentication filter
      * @throws Exception if an error occurs while configuring or building the security filter chain
      */
@@ -58,7 +59,11 @@ public class SecurityConfig {
                         // Administrative operations are restricted at the filter chain, so the
                         // controller is never reached for an unauthorised caller.
                         .requestMatchers(HttpMethod.DELETE, "/api/tickets/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/tickets/*/assign/*").hasAnyRole("MANAGER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/users").hasAnyRole("MANAGER", "ADMIN")
+                        // Dashboard aggregates are staff-only: customers must not see global
+                        // ticket counts, priorities or unassigned volume.
+                        .requestMatchers(HttpMethod.GET, "/api/dashboard/**").hasAnyRole("AGENT", "MANAGER", "ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions

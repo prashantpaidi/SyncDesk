@@ -6,6 +6,7 @@ import com.syncdesk.repository.TicketRepository;
 import com.syncdesk.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,7 +26,12 @@ public class DataSeeder implements CommandLineRunner {
     private final JdbcTemplate jdbcTemplate;
     private final PasswordEncoder passwordEncoder;
 
-    private static final int TARGET_TICKET_COUNT = 500_000;
+    /**
+     * Number of tickets to seed. Defaults to the historical 500k; the k6
+     * benchmark overrides it via {@code SYNCDESK_SEED_TICKET_COUNT}.
+     */
+    @Value("${syncdesk.seed.ticket-count:500000}")
+    private int targetTicketCount;
 
     @Override
     public void run(String... args) throws Exception {
@@ -38,8 +44,8 @@ public class DataSeeder implements CommandLineRunner {
         long currentTickets = ticketRepository.count();
         log.info("Current ticket count: {}", currentTickets);
 
-        if (currentTickets < TARGET_TICKET_COUNT) {
-            int toGenerate = TARGET_TICKET_COUNT - (int) currentTickets;
+        if (currentTickets < targetTicketCount) {
+            int toGenerate = targetTicketCount - (int) currentTickets;
             seedTickets(admin, toGenerate);
         } else {
             log.info("Database already seeded with {} tickets.", currentTickets);
@@ -49,7 +55,7 @@ public class DataSeeder implements CommandLineRunner {
         long currentComments = jdbcTemplate.queryForObject("SELECT count(*) FROM ticket_comments", Long.class);
         log.info("Current comment count: {}", currentComments);
 
-        if (currentComments < TARGET_TICKET_COUNT * 2) {
+        if (currentComments < (long) targetTicketCount * 2) {
             seedComments(admin);
         } else {
             log.info("Database already seeded with {} comments.", currentComments);
